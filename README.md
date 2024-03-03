@@ -6,9 +6,9 @@ One of the big advantages of running Linux is having the freedom to customize yo
 
 It's a similar rationale to people using *VSCode* over *neovim* for time saving purposes. "I don't wanna waste time learning vim, I rather just do my work without spending extra time learning keyboard shortcuts". 
 
-I quickly changed my mind on this after installing i3wm and configuring it over summer vacation. It took some time to get it right and I missed some important components at first. Like forgetting to activate swaylock after suspend, or having a nice and smooth way to connect to Wifi. I also had major frustrations with theming and getting a uniform look in both Sway, QT and GTK. It took sometime to setup just the way I wanted it but having it as a ansible role means it will be easy to replicate my setup when I want to install a new desktop. 
+I quickly changed my mind on this after installing Sway and configuring it over summer vacation. It took some time to get it right and I missed some important components at first. Like forgetting to activate swaylock after suspend, or having a nice and smooth way to connect to Wifi. I also had major frustrations with theming and getting a uniform look in both Sway, QT and GTK. It took sometime to setup just the way I wanted it but having it as a ansible role means it will be easy to replicate my setup when I want to install a new desktop. 
 
-This repository will contain ansible roles to bootstrap a complete desktop environment with the defaults I use and with the basic components needed for desktop & laptop use.It doesn't contain all the scripts & keyboard shortcuts I use since they are for my personal use.  
+This repository will contain ansible roles to bootstrap a complete desktop environment with the defaults I use and with the basic components needed for desktop & laptop use. It doesn't contain all the scripts & keyboard shortcuts I use since they are for my personal use.  
 
 Currently I only have one ansible role and that is for setting up Sway. I will soon create another role for setting up i3 for my old computers that don't support Wayland.  
 

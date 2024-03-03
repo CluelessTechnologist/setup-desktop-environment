@@ -4,7 +4,7 @@ This role will setup sway and everything needed for a good user experience (IMHO
 * Win95
 * Gruvbox
 
-**Note:** I don't use the default keybindings for Sway, check out the [reference card](role-sway-bootstrap/files/help/sway%20-%20Reference%20Card.html) to see what keybindings I use. Also the default layout is tabbed mode in my config. I don't see the need for opening a window and not use all the space I can right away. 
+**Note:** I don't use the default keybindings for Sway, check out the [reference card](/files/help/sway%20-%20Reference%20Card.html) to see what keybindings I use. Also the default layout is tabbed mode in my config. I don't see the need for opening a window and not use all the space I can right away. 
 ### Quick start  
 Make sure you have clean install of Debian or Arch. If you have a physical PC I would recommend Debian netinst for a minimal Debian install or just install ArchLinux. For a VM I would recommend a cloud image. Here are some links:  
 * [Debian Network install from minimal CD](https://www.debian.org/CD/netinst/)
