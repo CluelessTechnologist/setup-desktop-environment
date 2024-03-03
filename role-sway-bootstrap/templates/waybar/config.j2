@@ -1,0 +1,201 @@
+{
+    // "layer": "top", // Waybar at top layer
+    "position": "top", // Waybar position (top|bottom|left|right)
+    "height": 31, // Waybar height (to be removed for auto height)
+    // "width": 1280, // Waybar width
+    "spacing": 1, // Gaps between modules (4px)
+    // Choose the order of the modules
+    "modules-left": ["sway/workspaces", "sway/mode", "sway/scratchpad"],
+    "modules-center": ["network","custom/power","custom/run","custom/help"],
+    "modules-right": [
+{% if system_type == 'laptop' %}
+    "backlight",
+    "battery",
+{% endif %}
+    "custom/btc",
+    "disk", 
+    "cpu#cpuload", 
+    "cpu", 
+    "memory", 
+    "pulseaudio", 
+    "clock", 
+    "tray"],
+    // Modules configuration
+     "sway/workspaces": {
+         "format": "{icon}",
+         "format-icons": {
+             "1": "1",
+             "2": "2",
+             "3": "3",
+             "4": "4",
+             "5": "5",
+             "6": "6",
+             "7": "7",
+             "8": "8",
+             "9": "9",
+             "10": "10",
+        }
+     },
+    "sway/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+    "sway/scratchpad": {
+        "format": "{icon} {count}",
+        "show-empty": false,
+        "format-icons": ["", ""],
+        "tooltip": true,
+        "tooltip-format": "{app}: {title}"
+    }, 
+    "tray": {
+        // "icon-size": INT
+        "spacing": 4
+    },
+{% if ansible_distribution == 'Archlinux' %}
+    "clock": {
+        "interval": 1,
+        "format": "{:%Y-%m-%d %H:%M:%S}",
+    {% if theme == 'win95' %}
+        "tooltip-format": "<span font='IBM Plex Mono Bold 13' bgcolor='#7e7e7e'><big>{:%d %B}</big>\n<tt><small>{calendar}</small></tt></span>",
+    {% elif theme == 'gruvbox' %}
+        "tooltip-format": "<span font='IBM Plex Mono Bold 13' color='#d79921' bgcolor='#1d2021'><big>{:%d %B}</big>\n<tt><small>{calendar}</small></tt></span>",
+    {% endif %}
+        "calendar": {
+                    "mode"          : "month",
+                    "weeks-pos"     : "right",
+                    "on-scroll"     : 1,
+                    "on-click-right": "mode",
+                    "format": {
+    {% if theme == 'win95' %}
+                              "months":     "<span color='#000000' bgcolor='#7e7e7e'><b>{}</b></span>",
+                              "days":       "<span color='#000000' bgcolor='#7e7e7e'><b>{}</b></span>",
+                              "weeks":      "<span color='#000000' bgcolor='#7e7e7e'><b>W{:%V}</b></span>",
+                              "weekdays":   "<span color='#000000' bgcolor='#7e7e7e'><b>{}</b></span>",
+                              "today":      "<span color='#ffffff' bgcolor='#000080'><b>{}</b></span>"
+    {% elif theme == 'gruvbox' %}
+                              "months":     "<span color='#d79921' bgcolor='#1d2021'><b>{}</b></span>",
+                              "days":       "<span color='#d79921' bgcolor='#1d2021'><b>{}</b></span>",
+                              "weeks":      "<span color='#d79921' bgcolor='#1d2021'><b>W{:%V}</b></span>",
+                              "weekdays":   "<span color='#d79921' bgcolor='#1d2021'><b>{}</b></span>",
+                              "today":      "<span color='#000000' bgcolor='#ffffff'><b>{}</b></span>"
+    {% endif %}
+                              },
+                     },
+        "on-scroll": {
+                    "calendar": 1
+                     }
+    },
+{% elif ansible_distribution == 'Debian' %}
+    "clock": {
+        "interval": 1,
+        "format": "{:%Y-%m-%d %H:%M:%S}",
+    {% if theme == 'win95' %}
+        "tooltip-format": "<span font='IBM Plex Mono Bold 13' bgcolor='#7e7e7e'><big>{:%d %B}</big>\n<tt><small>{calendar}</small></tt></span>",
+    {% elif theme == 'gruvbox' %}
+        "tooltip-format": "<span font='IBM Plex Mono Bold 13' color='#d79921' bgcolor='#1d2021'><big>{:%d %B}</big>\n<tt><small>{calendar}</small></tt></span>",
+    {% endif %}
+        "calendar-weeks-pos": "right",
+    {% if theme == 'win95' %}
+        "today-format": "<span color='#ffffff' bgcolor='#000080'><b>{}</b></span>",
+        "format-calendar": "<span color='#000000' bgcolor='#7e7e7e'><b>{}</b></span>",
+        "format-calendar-weeks": "<span color='#000000' bgcolor='#7e7e7e'><b>W{:%V}</b></span>",
+    {% elif theme == 'gruvbox' %}
+        "today-format": "<span color='#000000' bgcolor='#ffffff'><b>{}</b></span>",
+        "format-calendar": "<span color='#d79921' bgcolor='#1d2021'><b>{}</b></span>",
+        "format-calendar-weeks": "<span color='#d79921' bgcolor='#1d2021'><b>W{:%V}</b></span>",
+    {% endif %}
+        "on-scroll": {
+                    "calendar": 1
+                     }
+    },
+{% endif %}
+    "custom/power": {
+        "format": " ⏻ ",
+        "tooltip": false,
+        "on-click": "wlogout --protocol layer-shell"
+    },
+    "custom/run": {
+        "format": "Run",
+        "tooltip": false,
+    {% if theme == 'win95' %}
+        "on-click": "j4-dmenu-desktop --dmenu='bemenu -i -l 20 --fb \"#7e7e7e\" --ff \"#000000\" --nb \"#7e7e7e\" --nf \"#000000\" --tb \"#7e7e7e\" --tf \"#000000\" --hf \"#ffffff\" --hb \"#000080\" --af \"#000000\" --ab \"#7e7e7e\"' --term='alacritty'"
+    {% elif theme == 'gruvbox' %}
+        "on-click": "j4-dmenu-desktop --dmenu='bemenu -i -l 20 --fb \"#282828\" --ff \"#ebdbb2\" --nb \"#282828\" --nf \"#ebdbb2\" --tb \"#282828\" --hb \"#282828\" --tf \"#fb4934\" --hf \"#fabd2f\" --af \"#ebdbb2\" --ab \"#282828\"' --term='alacritty'"
+    {% endif %}
+    },
+    "custom/help": {
+        "format": " ? ",
+        "tooltip": false,
+        "on-click": "xdg-open ~/.cache/sway\\ -\\ Reference\\ Card.html"
+    },
+    "network": {
+	"format": "{ifname}: ↑ {bandwidthUpBytes} ↓ {bandwidthDownBytes}",
+	"format-disconnected": "No network connected", 
+	"tooltip-format": "{ifname} via {gwaddr} 󰊗",
+	"tooltip-format-ethernet": "{ifname} ",
+        "tooltip-format-disconnected": "Disconnected",
+        "max-length": 100{% if system_type == 'laptop' %},
+        "on-click": "networkmanager_dmenu"
+{% endif %}
+	},
+
+
+    "custom/btc": {
+        "format": " {}",
+        "exec": "curl -s https://api.coindesk.com/v1/bpi/currentprice/USD.json | jq -r \".bpi.USD.rate\" | sed \"s/\\..*//\"",
+        "interval": 150,
+	},
+
+    "disk": {
+	"interval": 30,
+        "format": "{path} Free: {free}",
+	"path": "/"
+	},
+
+    "cpu#cpuload": {
+        "format": "CPU: {load}",
+        "tooltip": false
+    },
+
+    "cpu": {
+        "format": "CPU: {usage}%",
+        "tooltip": false
+    },
+    "memory": {
+        "format": "Mem: {used}/{total} GiB {percentage}%",
+        "tooltip": false
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon}",
+        "format-muted": "🔇",
+        "format-source-muted": "🔇",
+        "format-icons": {
+            "headphone": "🎧",
+            "hands-free": "👋",
+            "headset": "🎧",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": [""]
+        },
+        "on-click": "pavucontrol"
+    },
+{% if system_type == 'laptop' %}
+        "backlight": {
+        // "device": "acpi_video1",
+        "format": "{percent}% {icon}",
+        "format-icons": ["󰌶", "󱩎", "󱩏", "󱩐", "󱩑", "󱩒", "󱩓", "󱩔", "󱩕", "󱩖", "󰛨"]
+    },
+    "battery": {
+        "states": {
+            // "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{capacity}% {icon} ",
+        "format-charging": "{capacity}% 󰂄",
+        "format-plugged": "{capacity}% 󰂄",
+        "format-alt": "{time} {icon}",
+        "format-icons": ["", "", "", "", ""]
+    },
+{% endif %}
+   }

@@ -1,0 +1,9 @@
+[dmenu]
+{% if theme == 'win95' %}
+dmenu_command = /usr/bin/bemenu -i -l 20 --fb "#7e7e7e" --ff "#000000" --nb "#7e7e7e" --nf "#000000" --tb "#7e7e7e" --tf "#000000" --hf "#ffffff" --hb "#000080" --af "#000000" --ab "#7e7e7e"
+{% elif theme == 'gruvbox' %}
+dmenu_command = /usr/bin/bemenu -i -l 20 --fb "#282828" --ff "#ebdbb2" --nb "#282828" --nf "#ebdbb2" --tb "#282828" --hb "#282828" --tf "#fb4934" --hf "#fabd2f" --af "#ebdbb2" --ab "#282828"
+{% endif %}
+[editor]
+terminal = alacritty 
+gui_if_available = True 

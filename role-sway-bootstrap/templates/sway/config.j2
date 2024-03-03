@@ -1,0 +1,347 @@
+## Bootstrap sway config by CluelessTechnologist 
+
+# Input settings
+input "type:keyboard" {
+    xkb_layout {{ keyboard_layout }}
+    xkb_numlock enabled
+}
+
+# Enable xwayland
+xwayland enable
+
+# Enable lockscreen after 30 minutes or 5 minutes depening on laptop vs desktop
+{% if theme == 'win95' %}
+{% if system_type == 'laptop' %}
+# Lock & Hibernate
+set $lock-now swaylock --inside-color 32302f66 --ring-color f28534cc --separator-color 00000000 --key-hl-color b0b846cc -f -s tile -i .cache/lockscreen.png
+exec swayidle -w \
+  timeout 300 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && brightnessctl -s && brightnessctl set 5% && notify-send "Dim" "On battery"' \
+    resume 'brightnessctl -r' \
+  timeout 500 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && swaymsg "output * dpms off"' \
+    resume 'brightnessctrl -r && swaymsg "output * dpms on"' \
+  timeout 600 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && systemctl suspend-then-hibernate' \
+  timeout 650 '[ "$(cat /sys/class/power_supply/AC/online)" = "1" ] && brightnessctl -s && brightnessctl set 5% && notify-send "Dim" "On battery"' \
+    resume 'brightnessctl -r' \
+  timeout 900 '[ "$(cat /sys/class/power_supply/AC/online)" = "1" ] && swaymsg "output * dpms off"' \
+    resume 'brightnessctl -r && swaymsg "output * dpms on"' \
+  before-sleep 'exec $lock-now'
+{% endif %}
+exec swayidle -w \
+	timeout 1800 'swaylock --inside-color 00000080 --ring-color 000000 --separator-color 000080 --key-hl-color 000080 -f -s tile -i .cache/lockscreen.png' \
+	timeout 1805 'swaymsg "output * dpms off"' \
+	resume 'swaymsg "output * dpms on"'
+{% elif theme == 'gruvbox' %}
+{% if system_type == 'laptop' %}
+# Lock & Hibernate
+set $lock-now swaylock --inside-color 32302f66 --ring-color f28534cc --separator-color 00000000 --key-hl-color b0b846cc -f -s tile -i .cache/lockscreen.jpg
+exec swayidle -w \
+  timeout 300 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && brightnessctl -s && brightnessctl set 5% && notify-send "Dim" "On battery"' \
+    resume 'brightnessctl -r' \
+  timeout 500 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && swaymsg "output * dpms off"' \
+    resume 'brigtnessctl -r && swaymsg "output * dpms on"' \
+  timeout 600 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && systemctl suspend-then-hibernate' \
+  timeout 650 '[ "$(cat /sys/class/power_supply/AC/online)" = "1" ] && brightnessctl -s && brightnessctl set 5% && notify-send "Dim" "On battery"' \
+    resume 'brightnessctl -r' \
+  timeout 900 '[ "$(cat /sys/class/power_supply/AC/online)" = "1" ] && swaymsg "output * dpms off"' \
+    resume 'brightnessctl -r && swaymsg "output * dpms on"' \
+  before-sleep 'exec $lock-now'
+{% endif %}
+exec swayidle -w \
+	timeout 1800 'swaylock --inside-color 32302f66 --ring-color f28534cc --separator-color 00000000 --key-hl-color b0b846cc -f -s tile -i .cache/lockscreen.jpg' \
+	timeout 1805 'swaymsg "output * dpms off"' \
+	resume 'swaymsg "output * dpms on"'
+{% endif %}
+
+
+{% if ansible_distribution == 'Archlinux' %}
+# xdg-portal fix
+exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+{% endif %}
+{% if theme == 'gruvbox' %}
+# Set kvantum theme to gruvbox-kvantum
+exec alacritty --class start-kvantummanager-config --title kvantummanger-config -e $SHELL -c '/usr/local/bin/configure_kvantummanager.sh; sleep 5s; exit && $SHELL'
+{% endif %}
+# GTK app fix
+exec systemctl --user import-environment
+
+# Enable dunst on startup
+exec_always dunst
+
+# Enable swhkd on startup
+exec_always swhks &
+exec_always pkexec swhkd
+
+# Enable active window focus via alt tab script
+exec_always /usr/local/bin/track_prev_focus.sh
+
+# Use bemenu as the application launcher
+{% if theme == 'win95' %}
+set $menu j4-dmenu-desktop --dmenu='bemenu -i -l 20 --fb "#7e7e7e" --ff "#000000" --nb "#7e7e7e" --nf "#000000" --tb "#7e7e7e" --tf "#000000" --hf "#ffffff" --hb "#000080" --af "#000000" --ab "#7e7e7e"' --term='alacritty'
+{% elif theme == 'gruvbox' %}
+set $menu j4-dmenu-desktop --dmenu='bemenu -i -l 20 --fb "#282828" --ff "#ebdbb2" --nb "#282828" --nf "#ebdbb2" --tb "#282828" --hb "#282828" --tf "#fb4934" --hf "#fabd2f" --af "#ebdbb2" --ab "#282828"' --term='alacritty' 
+{% endif %}
+
+# Set workspace default layour as tabbed
+workspace_layout tabbed
+
+# Set Background
+{% if theme == 'win95' %}
+output "*" bg ~/.cache/wallpaper_default_win95.jpg fill
+{% elif theme == 'gruvbox' %}
+output "*" bg ~/.cache/wallpaper_default_gruvbox.jpg fill
+{% endif %}
+
+
+# Font for window titles. 
+font pango:monospace 8
+
+# Set modifer and alt key to correct keys
+set $mod Mod4
+set $alt Mod1
+
+# Define names for default workspaces for which we configure key bindings later on.
+# We use variables to avoid repeating the names in multiple places.
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10"
+
+# Use Mouse+$mod to drag floating windows to their wanted position
+floating_modifier $mod
+
+################## Keyboard shortcuts #############################
+
+# To start a terminal press
+bindsym $mod+Return exec alacritty
+# To change focus to left press
+bindsym $mod+h focus left
+# To change focus to down press
+bindsym $mod+j focus down
+# To change focus to up press
+bindsym $mod+k focus up
+# To change focus to right press
+bindsym $mod+l focus right
+# Alternatively, you can use the cursor keys:
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+# To kill current focused window press
+bindsym $mod+Shift+q kill
+bindsym $alt+F4      kill
+# Move focused window left
+bindsym $mod+Shift+h move left
+# Move focused window down
+bindsym $mod+Shift+j move down
+# Move focused window up
+bindsym $mod+Shift+k move up
+# Move focused window right
+bindsym $mod+Shift+l move right
+# Alternatively, you can use the cursor keys:
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+# To split windows in horizontal orientation press
+bindsym $mod+KP_Left split h
+# To split windows in vertical orientation press
+bindsym $mod+v split v
+# To enter fullscreen mode for the focused container press
+bindsym $mod+f fullscreen toggle
+# To change default container layout to stacking press
+bindsym $mod+s layout stacking
+# To change default container layout to tabbed press
+bindsym $mod+w layout tabbed
+# To change default container layout to split press
+bindsym $mod+e layout toggle split
+# To toggle tiling / floating windows press
+bindsym $mod+Shift+space floating toggle
+# To change focus between tiling / floating windows press
+bindsym $mod+space focus mode_toggle
+# To lock screen press
+{% if theme == 'win95' %}
+bindsym $mod+Control+l exec 'swaylock --inside-color 00000080 --ring-color 000000 --separator-color 000080 --key-hl-color 000080 -f -s tile -i .cache/lockscreen.png'
+{% elif theme == 'gruvbox' %}
+bindsym $mod+Control+l exec 'swaylock --inside-color 00000080 --ring-color 000000 --separator-color 000080 --key-hl-color 000080 -f -s tile -i .cache/lockscreen.jpg'
+{% endif %}
+# To focus the parent container press
+bindsym $mod+a focus parent
+# To switch between workspaces press
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+# To move focused window to another workspaces press
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+# To launch bemenu (a program launcher) press
+bindsym $mod+d exec $menu
+{% if system_type == 'laptop' %}
+# To launch networkmanager_dmenu press
+bindsym $mod+n exec networkmanager_dmenu
+{% endif %}
+# To make next window created a tabbed container press
+bindsym $mod+t split toggle; layout tabbed; exec notify-send 'Tabbed'
+# To switch between the last two active workspaces press 
+bindsym $mod+Tab exec swaymsg workspace back_and_forth
+# To switch between last two active windows press
+bindsym $mod+Shift+Tab [con_mark=_prev] focus
+# To move current focused window to a scratchpad press
+bindsym $mod+Shift+minus move scratchpad
+# To show the first scratchpad window press
+bindsym $mod+minus scratchpad show
+# To start firefox press
+bindsym $mod+F1 exec 'MOZ_ENABLE_WAYLAND=1 firefox'
+# To start google chrome press
+bindsym $mod+F2 exec 'google-chrome-stable --enable-features=UseOzonePlatform --ozone-platform=wayland'
+# To move workspace to another monitor press
+bindsym $mod+m move workspace to output left
+# To take a screenshot press 
+bindsym $mod+shift+p exec grim -g "$(slurp -d)" - | wl-copy
+# To OCR something on screen and copy it to the clipboard press
+bindsym $mod+shift+o exec grim -g "$(slurp)" - | tesseract -l "swe+eng" stdin stdout | wl-copy
+# To play/pause song in your music application press
+bindsym XF86AudioPlay   exec playerctl play-pause
+# To play next song in your music application press
+bindsym XF86AudioNext   exec playerctl next
+# To play previous song in your music application press
+bindsym XF86AudioPrev   exec playerctl previous
+# To raise volume press
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10%
+# To lower volume press
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10%
+# To mute volume press
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+# To mute your microphone press
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
+{% if system_type == 'laptop' %}
+# To increase brightness press
+bindsym XF86MonBrightnessUp exec /usr/bin/brightnessctl set 10%+
+# To decrease brightness press
+bindsym XF86MonBrightnessDown exec /usr/bin/brightnessctl set 10%-
+{% endif %}
+# To reload the sway configuration press
+bindsym $mod+Shift+c reload
+# To restart sway inplace (preserves your layout/session, can be used to upgrade sway) press
+bindsym $mod+Shift+r restart
+# To start wlogout from which you can logout or shutdown PC press: 
+bindsym $mod+Shift+e exec "wlogout --protocol layer-shell"
+mode "resize" {
+        # These bindings trigger as soon as you enter the resize mode
+
+        # Pressing left will shrink the window’s width.
+        # Pressing right will grow the window’s width.
+        # Pressing up will shrink the window’s height.
+        # Pressing down will grow the window’s height.
+        bindsym j resize shrink width 10 px or 10 ppt
+        bindsym k resize grow height 10 px or 10 ppt
+        bindsym l resize shrink height 10 px or 10 ppt
+        bindsym semicolon resize grow width 10 px or 10 ppt
+
+        # same bindings, but for the arrow keys
+        bindsym Left resize shrink width 10 px or 10 ppt
+        bindsym Down resize grow height 10 px or 10 ppt
+        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Right resize grow width 10 px or 10 ppt
+
+        # back to normal: Enter or Escape or $mod+r
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+        bindsym $mod+r mode "default"
+}
+
+# To resize window (you can also use the mouse for that) press:
+bindsym $mod+r mode "resize"
+################## Keyboard shortcuts end #########################
+
+# settings for firefox
+floating_minimum_size 500 x 300
+floating_maximum_size 2000 x 1500
+for_window [app_id="(?i)Firefox-esr" instance="^(?!Navigator$)"] floating enable
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="bubble"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [window_role="Preferences"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [window_type="menu"] floating enable
+for_window [app_id="(?i)gsimplecal"] floating enable, move position mouse, move down 3 px
+
+# settings for spotify
+for_window [class="Spotify"] floating enable
+{% if theme == 'win95' %}
+include colorscheme
+# Basic color configuration using the Base16 variables for windows and borders.
+# Property Name         Border  BG      Text    Indicator Child Border
+client.focused          $base05 $base0D $base00 $base0D $base0D
+client.focused_inactive $base01 $base01 $base05 $base03 $base01
+client.unfocused        $base01 $base02 $base05 $base01 $base01
+client.urgent           $base08 $base08 $base00 $base08 $base08
+client.placeholder      $base00 $base00 $base05 $base00 $base00
+client.background       $base07
+#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+    position top
+    swaybar_command waybar
+    colors {
+    background $base04
+    separator  $base01
+    statusline $base0G
+
+    # State             Border  BG      Text
+    focused_workspace   $base05 $base0D $base00
+    active_workspace    $base05 $base03 $base00
+    inactive_workspace  $base03 $base01 $base05
+    urgent_workspace    $base08 $base08 $base00
+    binding_mode        $base00 $base0A $base00
+    }
+}
+{% elif theme == 'gruvbox' %}
+include colorscheme
+# blue gruvbox
+# class                 border|backgr|text|indicator|child_border
+client.focused          $blue $blue $darkgray $purple $darkgray
+client.focused_inactive $darkgray $darkgray $yellow $purple $darkgray
+client.unfocused        $darkgray $darkgray $yellow $purple $darkgray
+
+#
+# Status Bar:
+#
+# Read `man 5 sway-bar` for more information about this section.
+bar {
+    position top
+    swaybar_command waybar
+    colors {
+    background $bg
+    separator  $yellow
+
+    # State             Border  BG      Text
+          focused_workspace    $aqua $aqua $darkgray
+          inactive_workspace   $darkgray $darkgray $yellow
+          active_workspace     $darkgray $darkgray $yellow
+          urgent_workspace     $red $red $bg
+    }
+}
+{% endif %}

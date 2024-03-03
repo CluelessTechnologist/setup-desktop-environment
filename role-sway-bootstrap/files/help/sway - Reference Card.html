@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+	<title>sway  - Reference Card</title>
+    <link rel="icon" href="https://swaywm.org/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="sway is a dynamic tiling window manager with clean, readable and documented code, featuring extended Xinerama support, usage of libxcb instead of xlib and several improvements over wmii">
+	<style>
+		* {
+		    margin: 0;
+		    padding: 0;
+		    box-sizing: border-box;
+		}
+
+		body {
+			font-family: "Droid Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+			font-size: 1rem;
+			color: #333;
+			display: flex;
+			line-height: 1.5;
+    		overflow-y: auto;
+		}
+
+		.column {
+			width: 33vw;
+			padding: 1rem;
+		}
+
+		.column > * + * {
+			margin-top: 1rem;
+		}
+
+		#logo {
+			float: left;
+		}
+
+		header {
+			text-align: center;
+		}
+
+		h1 {
+			font-size: 1.2rem;
+		}
+
+		h2 {
+			font-size: 1rem;
+			padding: .2rem .5rem;
+			margin-bottom: .5rem;
+			background-color: #ccc;
+		}
+
+		table {
+			width: 100%;
+		}
+
+		.swaymod {
+			width: 1rem;
+		}
+
+		td:last-child {
+			text-align: right;
+		}
+
+		kbd {
+		    background-color: #eee;
+		    border-radius: 3px;
+		    border: 1px solid #b4b4b4;
+		    display: inline-block;
+		    line-height: 1;
+		    padding: 2px 4px;
+		}
+
+		.ref {
+			font-size: .85em;
+			color: #666;
+		}
+
+		footer {
+			text-align: center;
+		}
+
+		footer p + p {
+			margin-top: 1rem;
+		}
+
+		@media screen and (max-width: 40rem) {
+			body {
+				flex-direction: column;
+			}
+
+			.column {
+				width: 100%;
+			}
+		}
+
+		@media print {
+			body {
+				font-size: .65rem;
+			}
+
+			.column > * + * {
+				margin-top: 0;
+			}
+
+			h2 {
+				margin-bottom: 0;
+				padding: 0;
+				background-color: #ccc;
+			}
+
+			.column:not(:first-child) {
+				padding: 0;
+				margin-left: 1rem;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="column">
+		<header>
+			<img id="logo" src="sway%20-%20Reference%20Card_files/logo-30.png" alt="">
+			<div class="intro">
+				<h1>sway Reference Card</h1>
+				<a href="https://github.com/swaywm/sway/wiki">https://github.com/swaywm/sway/wiki</a>
+				<p>Throughout this guide, the sway logo will be used to refer to the configured modifier. This is the <kbd>Alt</kbd> key (<code>Mod1</code>) by default, with <kbd>⊞</kbd> (<code>Mod4/"Windows key"</code>) being a popular alternative.</p>
+			</div>
+		</header>
+
+		<section>
+			<h2>Basics</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Enter</kbd></td>
+					<td>open new terminal</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>h</kbd></td>
+					<td>focus left</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>j</kbd></td>
+					<td>focus down</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>k</kbd></td>
+					<td>focus up</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>l</kbd></td>
+					<td>focus right</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>a</kbd></td>
+					<td>focus parent</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Space</kbd></td>
+					<td>toggle focus mode</td>
+				</tr>
+			</tbody></table>
+		</section>
+
+		<section>
+			<h2>Moving windows</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>h</kbd></td>
+					<td>move window left</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>j</kbd></td>
+					<td>move window down</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>k</kbd></td>
+					<td>move window up</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>l</kbd></td>
+					<td>move window right</td>
+				</tr>
+			</tbody></table>
+		</section>
+	</div>
+
+	<div class="column">
+		<section>
+			<h2>Modifying windows</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>f</kbd></td>
+					<td>toggle fullscreen</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>v</kbd></td>
+					<td>split a window vertically</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>KP_Left(←)</kbd></td>
+					<td>split a window horizontally</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>r</kbd></td>
+					<td>resize mode</td>
+				</tr>
+			</tbody></table>
+			<p class="ref">Look at the “Resizing containers / windows” section of the user guide.</p>
+		</section>
+
+		<section>
+			<h2>Changing the container layout</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>e</kbd></td>
+					<td>default</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>s</kbd></td>
+					<td>stacking</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>w</kbd></td>
+					<td>tabbed</td>
+				</tr>
+			</tbody></table>
+		</section>
+
+		<section>
+			<h2>Floating</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>Space</kbd></td>
+					<td>toggle floating</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Left click</kbd></td>
+					<td>drag floating</td>
+				</tr>
+			</tbody></table>
+		</section>
+
+		<section>
+			<h2>Using workspaces</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>0</kbd>-<kbd>9</kbd></td>
+					<td>switch to another workspace</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>0</kbd>-<kbd>9</kbd></td>
+					<td>move a window to another workspace</td>
+				</tr>
+			</tbody></table>
+		</section>
+	</div>
+
+	<div class="column">
+		<section>
+			<h2>Opening applications / Closing windows</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>d</kbd></td>
+					<td>open application launcher (bemenu)</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>q</kbd></td>
+					<td>kill a window</td>
+				</tr>
+			</tbody></table>
+		</section>
+
+		<section>
+			<h2>Restart / Exit</h2>
+			<table>
+				<tbody><tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>c</kbd></td>
+                    <td>reload the configuration file</td>
+                </tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>r</kbd></td>
+					<td>restart sway inplace</td>
+				</tr>
+				<tr>
+					<td><img class="swaymod" src="sway%20-%20Reference%20Card_files/logo-30.png" alt=""> + <kbd>Shift</kbd> + <kbd>e</kbd></td>
+		            <td>exit sway</td>
+		        </tr>
+			</tbody></table>
+		</section>
+
+		<footer>
+			<p>
+			This guide is originally from <a href="https://i3wm.org/docs/refcard.html">https://i3wm.org/docs/refcard.html</a> for the i3 window manager. It's been modified by CluelessTechnologist for &lt; project name and link here &gt;.
+			<p>
+			<br>
+			<p>
+			Copyright © 2012, Michael Stapelberg
+			<br>
+			All rights reserved
+			<br>
+			Designed by Zeus Panchenko, updated by Moritz Bandemer, updated by Sander De la Marche
+			</p>
+			<p>
+				Permission is granted to copy, distribute and/or modify this document provided
+				the copyright notice and this permission notice are preserved on all copies.
+			</p>
+		</footer>
+	</div>
+
+
+</body></html>

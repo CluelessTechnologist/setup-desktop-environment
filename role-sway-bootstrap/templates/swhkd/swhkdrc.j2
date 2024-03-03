@@ -1,0 +1,27 @@
+super + shift + f
+    foot
+
+
+super + shift + f3
+   @enter special-mode && swaynag -m 'Special mode for launching applications '
+
+
+mode special-mode
+q
+   @escape && killall swaynag
+c
+   alacritty --class calc --title Calculator -e $SHELL -c 'calc'
+
+endmode
+
+super + shift + f4
+   @enter workspace-kill-mode && swaynag -m 'Workspace kill mode'
+
+mode workspace-kill-mode
+q
+   @escape && killall swaynag
+{0, 1, 2, 3 ,4 ,5, 6, 8, 9}
+   swaymsg [workspace={0, 1, 2, 3, 4, 5, 6, 7, 9}] kill
+
+endmode
+
