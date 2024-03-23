@@ -41,54 +41,53 @@
       become: true
       apt:
         update_cache: true
-        name: "{{ item }}"
         state: present
-      loop:
-        - sway
-        - swayidle
-        - swaylock
-        - alacritty
-        - pavucontrol
-        - playerctl
-        - libwayland-egl-backend-dev
-        - bemenu
-        - j4-dmenu-desktop
-        - dunst
-        - unzip
-        - calc
-        - flatpak
-        - git
-        - qt5-style-plugins
-        - qt5ct
-        - qtwayland5
-        - xwayland
-        - grim
-        - slurp
-        - wl-clipboard
-        - tesseract-ocr
-        - fonts-font-awesome
-        - fonts-powerline
-        - fonts-noto
-        - jq
-        - waybar
-        - wlogout
-        - wdisplays
-        - build-essential
-        - libpam0g-dev
-        - libxcb-xkb-dev
-        - libxcb-xkb-dev
-        - curl
-        - cmake
-        - pkg-config
-        - libfreetype6-dev
-        - libfontconfig1-dev
-        - libxcb-xfixes0-dev
-        - libxkbcommon-dev
-        - pkexec
-        - psmisc 
-        - libudev-dev
-        - firefox-esr
-        - libnotify-dev
+        name:
+          - sway
+          - swayidle
+          - swaylock
+          - alacritty
+          - pavucontrol
+          - playerctl
+          - libwayland-egl-backend-dev
+          - bemenu
+          - j4-dmenu-desktop
+          - dunst
+          - unzip
+          - calc
+          - flatpak
+          - git
+          - qt5-style-plugins
+          - qt5ct
+          - qtwayland5
+          - xwayland
+          - grim
+          - slurp
+          - wl-clipboard
+          - tesseract-ocr
+          - fonts-font-awesome
+          - fonts-powerline
+          - fonts-noto
+          - jq
+          - waybar
+          - wlogout
+          - wdisplays
+          - build-essential
+          - libpam0g-dev
+          - libxcb-xkb-dev
+          - libxcb-xkb-dev
+          - curl
+          - cmake
+          - pkg-config
+          - libfreetype6-dev
+          - libfontconfig1-dev
+          - libxcb-xfixes0-dev
+          - libxkbcommon-dev
+          - pkexec
+          - psmisc 
+          - libudev-dev
+          - firefox-esr
+          - libnotify-dev
 
     - name: Install additional package for virtual machine
       become: true
@@ -100,13 +99,12 @@
     - name: Install additional package for laptop machine
       become: true
       apt:
-        name: "{{ item }}"
         state: present
-      loop:
-        - brightnessctl 
-        - network-manager-gnome
-        - python3-gi
-        - gir1.2-nm-1.0
+        name: 
+          - brightnessctl 
+          - network-manager-gnome
+          - python3-gi
+          - gir1.2-nm-1.0
       when: "system_type == 'laptop'"
 
     - name: Install kvantummanager
@@ -192,52 +190,51 @@
     - name: Install common packages
       become: true
       community.general.pacman:
-        name: "{{ item }}"
         state: present
-      loop:
-        - sway
-        - swayidle
-        - swaylock
-        - swaybg
-        - alacritty
-        - pulseaudio
-        - pavucontrol
-        - playerctl
-        - egl-wayland
-        - bemenu-wlroots
-        - j4-dmenu-desktop
-        - dunst
-        - unzip
-        - calc
-        - flatpak
-        - git
-        - qt5ct
-        - qt5-wayland
-        - xorg-server-xwayland
-        - grim
-        - slurp
-        - wl-clipboard
-        - tesseract
-        - ttf-font-awesome
-        - ttf-dejavu
-        - ttf-liberation
-        - powerline-fonts
-        - noto-fonts-emoji
-        - jq
-        - waybar
-        - base-devel
-        - libxkbcommon-x11
-        - curl
-        - cmake
-        - polkit
-        - psmisc
-        - firefox
-        - ly
-        - libnotify
-        - xdg-desktop-portal
-        - xdg-desktop-portal-wlr
-        - xdg-desktop-portal-gtk
-        - xdg-desktop-portal-gnome
+        name: 
+          - sway
+          - swayidle
+          - swaylock
+          - swaybg
+          - alacritty
+          - pulseaudio
+          - pavucontrol
+          - playerctl
+          - egl-wayland
+          - bemenu-wlroots
+          - j4-dmenu-desktop
+          - dunst
+          - unzip
+          - calc
+          - flatpak
+          - git
+          - qt5ct
+          - qt5-wayland
+          - xorg-server-xwayland
+          - grim
+          - slurp
+          - wl-clipboard
+          - tesseract
+          - ttf-font-awesome
+          - ttf-dejavu
+          - ttf-liberation
+          - powerline-fonts
+          - noto-fonts-emoji
+          - jq
+          - waybar
+          - base-devel
+          - libxkbcommon-x11
+          - curl
+          - cmake
+          - polkit
+          - psmisc
+          - firefox
+          - ly
+          - libnotify
+          - xdg-desktop-portal
+          - xdg-desktop-portal-wlr
+          - xdg-desktop-portal-gtk
+          - xdg-desktop-portal-gnome
 
     - name: Install additional package for virtual machine
       become: true
@@ -249,13 +246,12 @@
     - name: Install additional package for laptop machine
       become: true
       community.general.pacman:
-        name: "{{ item }}"
         state: present
-      loop:
-        - brightnessctl
-        - nm-connection-editor
-        - network-manager-applet
-        - python-gobject
+        name: 
+          - brightnessctl
+          - nm-connection-editor
+          - network-manager-applet
+          - python-gobject
       when: "system_type == 'laptop'"
 
     - name: Install kvantummanager
@@ -284,6 +280,7 @@
         - qt5-styleplugins
         - wlogout
         - wdisplays
+        - update-grub 
 
     - name: Create directory for Alacritty themes
       file:
@@ -408,6 +405,80 @@
       become: true
 
   when: system_type == 'laptop'
+
+- name: Clone grub2-gruvbox repository to /tmp/
+  ansible.builtin.git:
+    repo: https://git.fs.lmu.de/adnan/grub2-gruvbox.git
+    dest: /tmp/grub2-gruvbox
+    force: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Create /boot/grub/themes/gruvbox directory
+  ansible.builtin.file:
+    path: /boot/grub/themes/gruvbox
+    state: directory
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Copy gruvbox to /boot/grub/themes/
+  ansible.builtin.copy:
+    src: /tmp/grub2-gruvbox/
+    dest: /boot/grub/themes/gruvbox
+    remote_src: true
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Append GRUB_THEME="/boot/grub/themes/gruvbox/theme.txt" to /etc/default/grub
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    line: "GRUB_THEME=\"/boot/grub/themes/gruvbox/theme.txt\""
+    insertafter: '^GRUB_CMDLINE_LINUX='
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Clone grub-theme-win95 repository to /tmp/
+  ansible.builtin.git:
+    repo: https://github.com/a1ive/grub-theme-win95.git
+    dest: /tmp/grub-theme-win95
+    force: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Create /boot/grub/themes directory
+  ansible.builtin.file:
+    path: /boot/grub/themes
+    state: directory
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Copy win95 directory to /boot/grub/themes/
+  ansible.builtin.copy:
+    src: /tmp/grub-theme-win95/win95
+    dest: /boot/grub/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Append GRUB_THEME="/boot/grub/themes/win95/theme.txt" to /etc/default/grub
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    line: "GRUB_THEME=\"/boot/grub/themes/win95/theme.txt\""
+    insertafter: '^GRUB_CMDLINE_LINUX='
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Run update-grub command
+  ansible.builtin.command:
+    cmd: update-grub
+  become: true
+  tags: grub
 
 - name: Copy swhkd configuration template
   template:

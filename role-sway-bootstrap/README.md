@@ -35,10 +35,12 @@ Choose keyboard layout, this is usually a two letter country code (see https://w
 After the playbook has finished all you need to do is restart your machine and you should be greeted by Ly login or TTY. If Ly doesn't start you just logon to TTY and type "sway" and the desktop should load up. [(this is a bug that I have added to my Todo)](#broken-things--todo)
 ### Screenshots
 #### Win95
+![Sway desktop with Win95 theme, grub menu](/screenshots/win95/win95_grub.jpg "Sway - Grub Win95 theme")
 ![Sway desktop with Win95 theme, login screen](/screenshots/win95/win95_ly_prompt.jpg "Sway - Ly Win95 theme")
 ![Sway desktop with Win95 theme, two applications running](/screenshots/win95/win95_desktop.jpg "Sway - Win95 theme desktop")
 ![Sway desktop with Win95 theme, logout menu](/screenshots/win95/win95_logout.jpg "Sway - Win95 theme logout menu")
 #### Gruvbox
+![Sway desktop with Gruvbox theme, grub menu](/screenshots/gruvbox/gruvbox_grub.jpg "Sway - Grub Gruvbox theme")
 ![Sway desktop with Gruvbox theme, login screen](/screenshots/gruvbox/gruvbox_ly.jpg "Sway - Ly Gruvbox theme")
 ![Sway desktop with Gruvbox theme, two applications running](/screenshots/gruvbox/gruvbox_desktop.jpg "Sway - Gruvbox theme desktop")
 ![Sway desktop with Gruvbox theme, logout menu](/screenshots/gruvbox/gruvbox_logout.jpg "Sway - Gruvbox theme logout menu")
@@ -68,6 +70,7 @@ After the playbook has finished all you need to do is restart your machine and y
 * **Wallpaper:** [Green and brown plant on brown woven basket by Toa Hefitba](https://unsplash.com/photos/green-and-brown-plant-on-brown-woven-basket-p6GQoZHw_TI)
 * **Lockscreen:** Background image from the Win95 setup
 * **wlogout:** Custom
+* **Grub theme:** [GRUB Windows 95 Theme](https://github.com/a1ive/grub-theme-win95)
 #### Gruvbox  
 * **Sway theme:** Modified version of [Gruvbox material colorscheme for i3wm](https://gist.github.com/Cardoso1994/80641d652a4adcf6c8f718ebc3770ab9)
 * **GTK theme:** [Gruvbox-GTK-Theme](https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme)
@@ -76,6 +79,7 @@ After the playbook has finished all you need to do is restart your machine and y
 * **Wallpaper:** [forest-3](https://gruvbox-wallpapers.pages.dev/wallpapers/irl)
 * **Lockscreen:** [Minimalism 2](https://hdqwalls.com/minimalism-2-wallpaper)
 * **wlogout:** [Nord theme](https://gist.github.com/exdeniz/dea6b4817b8d35cecb8f21a13c6e7aa6)
+* **Grub theme:** [grub2-gruvbox](https://git.fs.lmu.de/adnan/grub2-gruvbox/-/tree/master)
 ### Broken things / Todo
 | Application     | Issue                                                                               | Workaround                                                                 |
 |-----------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
@@ -83,6 +87,5 @@ After the playbook has finished all you need to do is restart your machine and y
 | Ly              | When upgrading Ly the systemd file that contains the theme is wiped to the defaults |                                                                            |
 | Kvantum Manager | Gruvbox: Seems to be no way to set kvantum theme using CLI or conf file             | I have a script starting at first boot that sets the theme using the "GUI" |
 | wlogout         | Gruvbox: Current theme for wlogout is Nord based and not Gruvbox                    |                                                                            |
-| Grub            | Need to rice Grub to match the themes                                               |                                                                            |
 | yay (arch)      | Cannot run yay without NOPASSWD sudo option                                         | Use NOPASSWD sudo option                                                   |
 | N/A             | Virtual machine option doesn't install guest tools for other than KVM hypervisor    |                                                                            |
