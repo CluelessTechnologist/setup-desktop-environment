@@ -36,11 +36,13 @@ After the playbook has finished all you need to do is restart your machine and y
 ### Screenshots
 #### Win95
 ![Sway desktop with Win95 theme, grub menu](/screenshots/win95/win95_grub.jpg "Sway - Grub Win95 theme")
+![Sway desktop with Win95 theme, plymouth splash](/screenshots/win95/win95_plymouth.jpg "Sway - Plymouth Win95 theme")
 ![Sway desktop with Win95 theme, login screen](/screenshots/win95/win95_ly_prompt.jpg "Sway - Ly Win95 theme")
 ![Sway desktop with Win95 theme, two applications running](/screenshots/win95/win95_desktop.jpg "Sway - Win95 theme desktop")
 ![Sway desktop with Win95 theme, logout menu](/screenshots/win95/win95_logout.jpg "Sway - Win95 theme logout menu")
 #### Gruvbox
 ![Sway desktop with Gruvbox theme, grub menu](/screenshots/gruvbox/gruvbox_grub.jpg "Sway - Grub Gruvbox theme")
+![Sway desktop with Gruvbox theme, plymouth splash](/screenshots/gruvbox/gruvbox_plymouth.jpg "Sway - Plymouth Gruvbox theme")
 ![Sway desktop with Gruvbox theme, login screen](/screenshots/gruvbox/gruvbox_ly.jpg "Sway - Ly Gruvbox theme")
 ![Sway desktop with Gruvbox theme, two applications running](/screenshots/gruvbox/gruvbox_desktop.jpg "Sway - Gruvbox theme desktop")
 ![Sway desktop with Gruvbox theme, logout menu](/screenshots/gruvbox/gruvbox_logout.jpg "Sway - Gruvbox theme logout menu")
@@ -71,6 +73,7 @@ After the playbook has finished all you need to do is restart your machine and y
 * **Lockscreen:** Background image from the Win95 setup
 * **wlogout:** Custom
 * **Grub theme:** [GRUB Windows 95 Theme](https://github.com/a1ive/grub-theme-win95)
+* **Plymouth theme:** [Plymouth RetroTux Theme from Chicago95](https://github.com/grassmunk/Chicago95)
 #### Gruvbox  
 * **Sway theme:** Modified version of [Gruvbox material colorscheme for i3wm](https://gist.github.com/Cardoso1994/80641d652a4adcf6c8f718ebc3770ab9)
 * **GTK theme:** [Gruvbox-GTK-Theme](https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme)
@@ -80,6 +83,7 @@ After the playbook has finished all you need to do is restart your machine and y
 * **Lockscreen:** [Minimalism 2](https://hdqwalls.com/minimalism-2-wallpaper)
 * **wlogout:** [Nord theme](https://gist.github.com/exdeniz/dea6b4817b8d35cecb8f21a13c6e7aa6)
 * **Grub theme:** [grub2-gruvbox](https://git.fs.lmu.de/adnan/grub2-gruvbox/-/tree/master)
+* **Plymouth theme:** [Loader from adi1090x's plymouth-themes repo](https://github.com/adi1090x/plymouth-themes)
 ### Broken things / Todo
 | Application     | Issue                                                                               | Workaround                                                                 |
 |-----------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------|

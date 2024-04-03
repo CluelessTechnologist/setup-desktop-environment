@@ -85,6 +85,8 @@
           - libxkbcommon-dev
           - pkexec
           - psmisc 
+          - plymouth 
+          - plymouth-themes 
           - libudev-dev
           - firefox-esr
           - libnotify-dev
@@ -231,6 +233,7 @@
           - firefox
           - ly
           - libnotify
+          - plymouth
           - xdg-desktop-portal
           - xdg-desktop-portal-wlr
           - xdg-desktop-portal-gtk
@@ -405,81 +408,7 @@
       become: true
 
   when: system_type == 'laptop'
-
-- name: Clone grub2-gruvbox repository to /tmp/
-  ansible.builtin.git:
-    repo: https://git.fs.lmu.de/adnan/grub2-gruvbox.git
-    dest: /tmp/grub2-gruvbox
-    force: true
-  when: "theme == 'gruvbox'"
-  tags: grub
-
-- name: Create /boot/grub/themes/gruvbox directory
-  ansible.builtin.file:
-    path: /boot/grub/themes/gruvbox
-    state: directory
-  become: true
-  when: "theme == 'gruvbox'"
-  tags: grub
-
-- name: Copy gruvbox to /boot/grub/themes/
-  ansible.builtin.copy:
-    src: /tmp/grub2-gruvbox/
-    dest: /boot/grub/themes/gruvbox
-    remote_src: true
-  become: true
-  when: "theme == 'gruvbox'"
-  tags: grub
-
-- name: Append GRUB_THEME="/boot/grub/themes/gruvbox/theme.txt" to /etc/default/grub
-  ansible.builtin.lineinfile:
-    path: /etc/default/grub
-    line: "GRUB_THEME=\"/boot/grub/themes/gruvbox/theme.txt\""
-    insertafter: '^GRUB_CMDLINE_LINUX='
-  become: true
-  when: "theme == 'gruvbox'"
-  tags: grub
-
-- name: Clone grub-theme-win95 repository to /tmp/
-  ansible.builtin.git:
-    repo: https://github.com/a1ive/grub-theme-win95.git
-    dest: /tmp/grub-theme-win95
-    force: true
-  when: "theme == 'win95'"
-  tags: grub
-
-- name: Create /boot/grub/themes directory
-  ansible.builtin.file:
-    path: /boot/grub/themes
-    state: directory
-  become: true
-  when: "theme == 'win95'"
-  tags: grub
-
-- name: Copy win95 directory to /boot/grub/themes/
-  ansible.builtin.copy:
-    src: /tmp/grub-theme-win95/win95
-    dest: /boot/grub/themes/
-    remote_src: true
-  become: true
-  when: "theme == 'win95'"
-  tags: grub
-
-- name: Append GRUB_THEME="/boot/grub/themes/win95/theme.txt" to /etc/default/grub
-  ansible.builtin.lineinfile:
-    path: /etc/default/grub
-    line: "GRUB_THEME=\"/boot/grub/themes/win95/theme.txt\""
-    insertafter: '^GRUB_CMDLINE_LINUX='
-  become: true
-  when: "theme == 'win95'"
-  tags: grub
-
-- name: Run update-grub command
-  ansible.builtin.command:
-    cmd: update-grub
-  become: true
-  tags: grub
-
+    
 - name: Copy swhkd configuration template
   template:
     src: templates/swhkd/swhkdrc.j2
@@ -712,6 +641,131 @@
     repo: https://github.com/grassmunk/Chicago95
     dest: /tmp/Chicago95
   when: "theme == 'win95'"
+
+- name: Check if "splash" is already present in GRUB_CMDLINE_LINUX_DEFAULT
+  ansible.builtin.shell: "grep -q 'GRUB_CMDLINE_LINUX_DEFAULT.*splash' /etc/default/grub"
+  register: splash_check
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
+
+- name: Append "splash" to GRUB_CMDLINE_LINUX_DEFAULT if not already present
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^(GRUB_CMDLINE_LINUX_DEFAULT="[^"]*)( *splash)?(.*)$'
+    line: '\1 splash\3'
+    backrefs: true
+  become: yes
+  when: splash_check.rc != 0
+  tags: plymouth
+
+- name: Clone plymouth-themes repository
+  git:
+    repo: https://github.com/adi1090x/plymouth-themes 
+    dest: /tmp/plymouth-themes
+  when: "theme == 'gruvbox'"
+
+- name: Copy Loader theme to Plymouth themes directory
+  ansible.builtin.copy:
+    src: /tmp/plymouth-themes/pack_3/loader
+    dest: /usr/share/plymouth/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Set Loader as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: plymouth-set-default-theme -R loader 
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Copy RetroTux theme to Plymouth themes directory
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Plymouth/RetroTux
+    dest: /usr/share/plymouth/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Set RetroTux as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: plymouth-set-default-theme -R RetroTux
+  become: true
+  when: "theme == 'win95'"
+
+- name: Clone grub2-gruvbox repository to /tmp/
+  ansible.builtin.git:
+    repo: https://git.fs.lmu.de/adnan/grub2-gruvbox.git
+    dest: /tmp/grub2-gruvbox
+    force: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Create /boot/grub/themes/gruvbox directory
+  ansible.builtin.file:
+    path: /boot/grub/themes/gruvbox
+    state: directory
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Copy gruvbox to /boot/grub/themes/
+  ansible.builtin.copy:
+    src: /tmp/grub2-gruvbox/
+    dest: /boot/grub/themes/gruvbox
+    remote_src: true
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Append GRUB_THEME="/boot/grub/themes/gruvbox/theme.txt" to /etc/default/grub
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    line: "GRUB_THEME=\"/boot/grub/themes/gruvbox/theme.txt\""
+    insertafter: '^GRUB_CMDLINE_LINUX='
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Clone grub-theme-win95 repository to /tmp/
+  ansible.builtin.git:
+    repo: https://github.com/a1ive/grub-theme-win95.git
+    dest: /tmp/grub-theme-win95
+    force: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Create /boot/grub/themes directory
+  ansible.builtin.file:
+    path: /boot/grub/themes
+    state: directory
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Copy win95 directory to /boot/grub/themes/
+  ansible.builtin.copy:
+    src: /tmp/grub-theme-win95/win95
+    dest: /boot/grub/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Append GRUB_THEME="/boot/grub/themes/win95/theme.txt" to /etc/default/grub
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    line: "GRUB_THEME=\"/boot/grub/themes/win95/theme.txt\""
+    insertafter: '^GRUB_CMDLINE_LINUX='
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Run update-grub command
+  ansible.builtin.command:
+    cmd: update-grub
+  become: true
+  tags: grub
 
 - name: Copy Chicago95 theme to /usr/share/themes/
   ansible.builtin.copy:
