@@ -260,8 +260,10 @@
     - name: Install kvantummanager
       become: true
       community.general.pacman:
-        name: kvantum
         state: present
+        name: 
+          - kvantum
+          - kvantum-qt5
       when: "theme == 'gruvbox'"
 
     - name: Clone yay
@@ -495,11 +497,13 @@
   template:
     src: templates/wlogout/layout.j2
     dest: ~/.config/wlogout/layout
+  tags: wlogout
 
 - name: Copy wlogout CSS style template
   template:
     src: templates/wlogout/style.css.j2
     dest: ~/.config/wlogout/style.css
+  tags: wlogout
 
 - name: Copy help docs to ~/.cache
   ansible.builtin.copy:
@@ -509,6 +513,21 @@
     - "files/help/sway - Reference Card_files"
     - "files/help/sway - Reference Card.html"
   tags: copy_help
+
+- name: Copy Gruvbox icons to /usr/share/wlogout/icons/
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/usr/share/wlogout/icons/"
+  loop:
+    - files/wlogout/gruvbox-icons/gruvbox-hibernate.png
+    - files/wlogout/gruvbox-icons/gruvbox-lock.png
+    - files/wlogout/gruvbox-icons/gruvbox-logout.png
+    - files/wlogout/gruvbox-icons/gruvbox-reboot.png
+    - files/wlogout/gruvbox-icons/gruvbox-shutdown.png
+    - files/wlogout/gruvbox-icons/gruvbox-suspend.png
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: wlogout
 
 - name: Copy Win95 icons to /usr/share/wlogout/icons/
   ansible.builtin.copy:
@@ -523,6 +542,7 @@
     - files/wlogout/win95-icons/win95-suspend.png
   become: true
   when: "theme == 'win95'"
+  tags: wlogout
 
 - name: Copy Win95 wallpaper
   ansible.builtin.copy:
@@ -641,6 +661,7 @@
     repo: https://github.com/grassmunk/Chicago95
     dest: /tmp/Chicago95
   when: "theme == 'win95'"
+  tags: plymouth
 
 - name: Check if "splash" is already present in GRUB_CMDLINE_LINUX_DEFAULT
   ansible.builtin.shell: "grep -q 'GRUB_CMDLINE_LINUX_DEFAULT.*splash' /etc/default/grub"
@@ -648,6 +669,7 @@
   changed_when: false
   failed_when: false
   ignore_errors: true
+  tags: plymouth
 
 - name: Append "splash" to GRUB_CMDLINE_LINUX_DEFAULT if not already present
   ansible.builtin.lineinfile:
@@ -664,6 +686,8 @@
     repo: https://github.com/adi1090x/plymouth-themes 
     dest: /tmp/plymouth-themes
   when: "theme == 'gruvbox'"
+  tags: plymouth
+
 
 - name: Copy Loader theme to Plymouth themes directory
   ansible.builtin.copy:
@@ -672,12 +696,16 @@
     remote_src: true
   become: true
   when: "theme == 'gruvbox'"
+  tags: plymouth
+
 
 - name: Set Loader as the default Plymouth theme
   ansible.builtin.command:
     cmd: plymouth-set-default-theme -R loader 
   become: true
   when: "theme == 'gruvbox'"
+  tags: plymouth
+
 
 - name: Copy RetroTux theme to Plymouth themes directory
   ansible.builtin.copy:
@@ -686,12 +714,16 @@
     remote_src: true
   become: true
   when: "theme == 'win95'"
+  tags: plymouth
+
 
 - name: Set RetroTux as the default Plymouth theme
   ansible.builtin.command:
     cmd: plymouth-set-default-theme -R RetroTux
   become: true
   when: "theme == 'win95'"
+  tags: plymouth
+
 
 - name: Clone grub2-gruvbox repository to /tmp/
   ansible.builtin.git:

@@ -81,7 +81,7 @@ After the playbook has finished all you need to do is restart your machine and y
 * **Waybar theme:** Modified version of [gruvy gruvbox](https://www.reddit.com/r/unixporn/comments/rhi6m6/sway_wayland_with_gruvy_gruvbox)
 * **Wallpaper:** [forest-3](https://gruvbox-wallpapers.pages.dev/wallpapers/irl)
 * **Lockscreen:** [Minimalism 2](https://hdqwalls.com/minimalism-2-wallpaper)
-* **wlogout:** [Nord theme](https://gist.github.com/exdeniz/dea6b4817b8d35cecb8f21a13c6e7aa6)
+* **wlogout:** [Cozy Grubox with GTK icons](https://github.com/0bCdian/Hyprland_dotfiles/tree/Cozy_Gruvbox)
 * **Grub theme:** [grub2-gruvbox](https://git.fs.lmu.de/adnan/grub2-gruvbox/-/tree/master)
 * **Plymouth theme:** [Loader from adi1090x's plymouth-themes repo](https://github.com/adi1090x/plymouth-themes)
 ### Broken things / Todo
@@ -90,6 +90,5 @@ After the playbook has finished all you need to do is restart your machine and y
 | Ly              | Sometimes when booting Ly is not visible in TTY1                                    | Logon to TTY and start Sway manually                                       |
 | Ly              | When upgrading Ly the systemd file that contains the theme is wiped to the defaults |                                                                            |
 | Kvantum Manager | Gruvbox: Seems to be no way to set kvantum theme using CLI or conf file             | I have a script starting at first boot that sets the theme using the "GUI" |
-| wlogout         | Gruvbox: Current theme for wlogout is Nord based and not Gruvbox                    |                                                                            |
 | yay (arch)      | Cannot run yay without NOPASSWD sudo option                                         | Use NOPASSWD sudo option                                                   |
 | N/A             | Virtual machine option doesn't install guest tools for other than KVM hypervisor    |                                                                            |
