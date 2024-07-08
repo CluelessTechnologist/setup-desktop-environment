@@ -57,10 +57,6 @@ exec swayidle -w \
 # xdg-portal fix
 exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 {% endif %}
-{% if theme == 'gruvbox' %}
-# Set kvantum theme to gruvbox-kvantum
-exec alacritty --class start-kvantummanager-config --title kvantummanger-config -e $SHELL -c '/usr/local/bin/configure_kvantummanager.sh; sleep 5s; exit && $SHELL'
-{% endif %}
 # GTK app fix
 exec systemctl --user import-environment
 
