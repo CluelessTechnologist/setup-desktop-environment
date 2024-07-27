@@ -1,0 +1,779 @@
+---
+# tasks file for role-i3-bootstrap
+- name: Check if system_type is valid
+  fail:
+    msg: "Invalid system_type. Choose from desktop, virtual_machine, or laptop."
+  when: system_type not in ['desktop', 'virtual_machine', 'laptop']
+
+- name: Check if theme is valid
+  fail:
+    msg: "Invalid theme. Choose either 'win95' or 'gruvbox'."
+  when: theme not in ['win95', 'gruvbox']
+
+- name: Print distro information
+  ansible.builtin.debug:
+    msg: "The distribution is {{ ansible_distribution }}"
+  tags: distro
+
+- name: Perform actions based on distro
+  ansible.builtin.command: echo "This is Debian-specific action"
+  when: ansible_distribution == 'Debian'
+  tags: distro
+
+- name: Perform actions based on distro
+  ansible.builtin.command: echo "This is Arch-specific action"
+  when: ansible_distribution == 'Archlinux'
+  tags: distro
+
+- name: Debian specific parts
+  block:
+    - name: Install common packages
+      become: true
+      apt:
+        update_cache: true
+        state: present
+        name:
+          - i3
+          - sxhkd
+          - xinit
+          - xterm
+          - lightdm
+          - lightdm-gtk-greeter
+          - x11-utils
+          - xautolock
+          - feh
+          - pavucontrol
+          - playerctl
+          - gsimplecal
+          - python3-i3ipc
+          - dunst
+          - polybar
+          - unzip
+          - calc
+          - git
+          - qt5-style-plugins
+          - qt5ct
+          - tesseract-ocr
+          - fonts-font-awesome
+          - fonts-powerline
+          - fonts-noto
+          - jq
+          - build-essential
+          - curl
+          - pkexec
+          - psmisc
+          - plymouth
+          - plymouth-themes
+          - libnotify-dev
+          - j4-dmenu-desktop
+          - python3-urwid
+
+    - name: Install additional package for virtual machine
+      become: true
+      apt:
+        name: spice-vdagent
+        state: present
+      when: "system_type == 'virtual_machine'"
+
+    - name: Install additional package for laptop machine
+      become: true
+      apt:
+        state: present
+        name:
+          - brightnessctl
+          - network-manager-gnome
+          - python3-gi
+          - gir1.2-nm-1.0
+      when: "system_type == 'laptop'"
+
+    - name: Install kvantummanager
+      become: true
+      apt:
+        name: qt5-style-kvantum
+        state: present
+      when: "theme == 'gruvbox'"
+
+  when: ansible_distribution == 'Debian'
+
+- name: Arch specific parts
+  block:
+
+    - name: Run the equivalent of "pacman -Syu" as a separate step
+      become: true
+      community.general.pacman:
+        update_cache: true
+        upgrade: true
+
+    - name: Install common packages
+      become: true
+      community.general.pacman:
+        state: present
+        name:
+          - pulseaudio
+          - pavucontrol
+          - i3-wm
+          - feh
+          - sxhkd
+          - python-i3ipc
+          - xterm
+          - polybar
+          - dmenu
+          - xorg
+          - xorg-xinit
+          - lightdm
+          - lightdm-gtk-greeter
+          - xautolock
+          - playerctl
+          - gsimplecal
+          - dunst
+          - unzip
+          - wget
+          - calc
+          - git
+          - qt5ct
+          - tesseract
+          - ttf-font-awesome
+          - ttf-dejavu
+          - ttf-liberation
+          - powerline-fonts
+          - noto-fonts-emoji
+          - jq
+          - base-devel
+          - curl
+          - cmake
+          - polkit
+          - psmisc
+          - libnotify
+          - plymouth
+          - j4-dmenu-desktop
+          - python-urwid
+
+    - name: Install additional package for virtual machine
+      become: true
+      community.general.pacman:
+        name: spice-vdagent
+        state: present
+      when: "system_type == 'virtual_machine'"
+
+    - name: Install additional package for laptop machine
+      become: true
+      community.general.pacman:
+        state: present
+        name:
+          - brightnessctl
+          - nm-connection-editor
+          - network-manager-applet
+          - python-gobject
+      when: "system_type == 'laptop'"
+
+    - name: Install kvantummanager
+      become: true
+      community.general.pacman:
+        state: present
+        name:
+          - kvantum
+          - kvantum-qt5
+      when: "theme == 'gruvbox'"
+
+    - name: Clone yay
+      git:
+        repo: https://aur.archlinux.org/yay-bin.git
+        dest: "/tmp/yay"
+        update: true
+
+    - name: Build and install yay
+      command:
+        chdir: "/tmp/yay"
+        cmd: "makepkg -sfi --noconfirm"
+        creates: /usr/bin/yay
+
+    - name: Install package from AUR
+      ansible.builtin.command: yay -S --noconfirm {{ item }}
+      with_items:
+        - qt5-styleplugins
+        - update-grub
+  when: ansible_distribution == 'Archlinux'
+
+- name: Create directory for local fonts
+  file:
+    path: ~/.local/share/fonts
+    state: directory
+  tags: fonts
+
+- name: Create directory for source 
+  file:
+    path: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts" 
+    state: directory
+  tags: fonts
+
+- name: Download Terminus Nerd Font
+  ansible.builtin.get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Terminus.zip"
+    dest: "/tmp/Terminus.zip"
+  become: false
+  tags: fonts
+
+- name: Unzip Terminus Nerd Font
+  ansible.builtin.unarchive:
+    src: "/tmp/Terminus.zip"
+    dest: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts"
+    remote_src: true
+  become: false
+  tags: fonts
+
+- name: Select fonts to install
+  ansible.builtin.find:
+    recurse: true
+    use_regex: true
+    paths: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts"
+    patterns:
+      - '^.*?((?!Windows).)*?\.ttf$'
+  register: fonts_to_install
+  tags: fonts
+
+- ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.local/share/fonts/{{ item.path | basename }}"
+    src: "{{ item.path }}"
+    remote_src: true
+  loop: "{{ fonts_to_install.files }}"
+  tags: fonts
+
+- name: Update font config cache
+  ansible.builtin.command:
+    cmd: "fc-cache -fv"
+  tags: fonts
+
+- name: Delete src directory
+  ansible.builtin.file:
+    state: absent
+    path: ~/src/
+  tags: removal
+
+- name: Laptop specific parts
+  block:
+    - name: Create directory for networkmanager-dmenu config
+      file:
+        path: ~/.config/networkmanager-dmenu
+        state: directory
+
+    - name: Copy networkmanager-dmenu configuration template
+      template:
+        src: templates/networkmanager-dmenu/config.ini.j2
+        dest: ~/.config/networkmanager-dmenu/config.ini
+
+    - name: Clone networkmanager-dmenu repository
+      ansible.builtin.git:
+        repo: https://github.com/firecat53/networkmanager-dmenu
+        dest: /tmp/networkmanager-dmenu
+
+    - name: Copy networkmanager_dmenu binary with execution permissions
+      ansible.builtin.copy:
+        src: /tmp/networkmanager-dmenu/networkmanager_dmenu
+        dest: /usr/bin/networkmanager_dmenu
+        mode: '0755'
+        remote_src: true
+      become: true
+
+    - name: Copy networkmanager_dmenu.desktop to /usr/share/applications/
+      ansible.builtin.copy:
+        src: /tmp/networkmanager-dmenu/networkmanager_dmenu.desktop
+        dest: /usr/share/applications/networkmanager_dmenu.desktop
+        remote_src: true
+      become: true
+
+    - name: Clone batsignal repository
+      ansible.builtin.git:
+        repo: https://github.com/electrickite/batsignal
+        dest: /tmp/batsignal
+
+    - name: Build batsignal
+      ansible.builtin.shell: make
+      args:
+        chdir: /tmp/batsignal
+
+    - name: Install batsignal
+      ansible.builtin.shell: make install && make install-service
+      args:
+        chdir: /tmp/batsignal
+      become: true
+
+    - name: Enable batsignal.service
+      ansible.builtin.service:
+        name: batsignal.service
+        enabled: true
+        state: started
+        scope: user
+
+    - name: Change line in logind.conf
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/logind.conf
+        regexp: '^#?HandleLidSwitchExternalPower='
+        line: 'HandleLidSwitchExternalPower=ignore'
+        backup: true
+      become: true
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
+    - name: Restart systemd-logind service
+      ansible.builtin.systemd:
+        name: systemd-logind
+        state: restarted
+      become: true
+
+  when: system_type == 'laptop'
+
+- name: Create directory for sxhkd config
+  file:
+    path: ~/.config/sxhkd
+    state: directory
+
+- name: Copy sxhkd configuration template
+  template:
+    src: templates/sxhkd/sxhkdrc.j2
+    dest: ~/.config/sxhkd/sxhkdrc
+
+- name: Create directory for dunst config
+  file:
+    path: ~/.config/dunst
+    state: directory
+
+- name: Copy dunst config template
+  template:
+    src: templates/dunst/dunstrc.j2
+    dest: ~/.config/dunst/dunstrc
+
+- name: Create directory for xterm config
+  file:
+    path: ~/.config/xresources
+    state: directory
+
+- name: Copy xterm Gruvbox theme template
+  template:
+    src: templates/xterm/xresources/gruvbox-dark.xresources
+    dest: ~/.config/xresources/gruvbox-dark.xresources
+  when: "theme == 'gruvbox'"
+
+- name: Copy xterm Win95 theme template
+  template:
+    src: templates/xterm/xresources/hyper.Xresources
+    dest: ~/.config/xresources/hyper.Xresources
+  when: "theme == 'win95'"
+
+- name: Copy xterm configuration template
+  template:
+    src: templates/xterm/xresources/.Xresources
+    dest: ~/.config/xresources/.Xresources
+
+- name: Create symbolic link for .Xresources
+  ansible.builtin.file:
+    src: "~/.config/xresources/.Xresources"
+    dest: "~/.Xresources"
+    state: link
+  become: false
+
+- name: Create directory for gsimplecal config
+  file:
+    path: ~/.config/gsimplecal
+    state: directory
+
+- name: Copy gsimplecal configuration template
+  template:
+    src: templates/gsimplecal/config.j2
+    dest: ~/.config/gsimplecal/config
+
+- name: Create directory for polybar config
+  file:
+    path: ~/.config/polybar
+    state: directory
+  tags: polybar
+
+- name: Copy polybar config template
+  template:
+    src: templates/polybar/config.ini.j2
+    dest: ~/.config/polybar/config.ini
+  tags: polybar
+
+- name: Copy logoutmenu.py script
+  ansible.builtin.copy:
+    src: files/scripts/logoutmenu.py
+    dest: "/usr/local/bin/logoutmenu.py"
+    mode: '0755'
+  become: true
+
+- name: Copy Win95 wallpaper
+  ansible.builtin.copy:
+    src: files/wallpapers/wallpaper_default_win95.jpg
+    dest: "~/.cache/wallpaper_default_win95.jpg"
+  when: "theme == 'win95'"
+
+- name: Create directory for i3 config
+  file:
+    path: ~/.config/i3
+    state: directory
+  tags: i3
+
+- name: Copy i3 configuration template
+  template:
+    src: templates/i3/config.j2
+    dest: ~/.config/i3/config
+  tags: i3
+
+- name: Copy track_prev_focus.py
+  ansible.builtin.copy:
+    src: files/scripts/track_prev_focus.py
+    dest: /usr/local/bin/track_prev_focus.py
+    mode: '0755'
+  become: true
+
+- name: Create ~/.themes directory
+  ansible.builtin.file:
+    path: ~/.themes
+    state: directory
+
+- name: Create ~/.icons directory
+  ansible.builtin.file:
+    path: ~/.icons
+    state: directory
+
+- name: Create ~/.config/Kvantum directory
+  ansible.builtin.file:
+    path: ~/.config/Kvantum
+    state: directory
+  when: "theme == 'gruvbox'"
+
+- name: Copy Kvantum template
+  template:
+    src: templates/kvantum/kvantum.kvconfig.j2
+    dest: ~/.config/Kvantum/kvantum.kvconfig
+  when: "theme == 'gruvbox'"
+
+- name: Clone Gruvbox-Kvantum repository
+  git:
+    repo: https://github.com/theglitchh/Gruvbox-Kvantum
+    dest: /tmp/Gruvbox-Kvantum
+  when: "theme == 'gruvbox'"
+
+- name: Copy Gruvbox-Kvantum theme to /usr/share/Kvantum
+  ansible.builtin.copy:
+    src: /tmp/Gruvbox-Kvantum/gruvbox-kvantum
+    dest: /usr/share/Kvantum/
+    remote_src: true
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Clone Gruvbox-GTK-Theme repository
+  git:
+    repo: https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme
+    dest: ~/Gruvbox-GTK-Theme
+  when: "theme == 'gruvbox'"
+
+- name: Copy Gruvbox-GTK-Theme icons to /usr/share/icons/
+  ansible.builtin.copy:
+    src: "{{ ansible_env.HOME }}/Gruvbox-GTK-Theme/icons/Gruvbox-Dark"
+    dest: /usr/share/icons/
+    remote_src: true
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Copy icons to ~/.icons/
+  ansible.builtin.copy:
+    src: ~/Gruvbox-GTK-Theme/icons/Gruvbox-Dark
+    dest: ~/.icons/
+    remote_src: true
+  when: "theme == 'gruvbox'"
+
+- name: Delete Gruvbox-GTK-Theme directory
+  ansible.builtin.file:
+    state: absent
+    path: ~/Gruvbox-GTK-Theme
+  tags: removal
+
+- name: Create directory /tmp/gruvbox
+  file:
+    path: /tmp/gruvbox
+    state: directory
+    mode: 0755
+  when: "theme == 'gruvbox'"
+
+- name: Download Gruvbox themes
+  ansible.builtin.shell:
+    cmd: curl -Lfs https://www.pling.com/p/1681313/loadFiles | jq -r '.files | first.version as $v | .[] | select(.version == $v).url' | perl -pe 's/\%(\w\w)/chr hex $1/ge' | xargs wget
+  args:
+    chdir: /tmp/gruvbox
+  when: "theme == 'gruvbox'"
+
+- name: Find all theme zip files in the directory
+  find:
+    paths: /tmp/gruvbox/
+    patterns: "*.zip"
+  register: zip_files
+  tags: gruvbox_themes
+  when: "theme == 'gruvbox'"
+
+- name: Extract each zip file to ~/.themes
+  unarchive:
+    src: "{{ item.path }}"
+    dest: "~/.themes"
+    remote_src: true
+  with_items: "{{ zip_files.files }}"
+  tags: gruvbox_themes
+  when: "theme == 'gruvbox'"
+
+- name: Extract each zip file to /usr/share/themes
+  unarchive:
+    src: "{{ item.path }}"
+    dest: "/usr/share/themes"
+    remote_src: true
+  with_items: "{{ zip_files.files }}"
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Copy gruvbox wallpaper
+  ansible.builtin.copy:
+    src: files/wallpapers/wallpaper_default_gruvbox.jpg
+    dest: "~/.cache/wallpaper_default_gruvbox.jpg"
+  when: "theme == 'gruvbox'"
+
+- name: Copy gruvbox lockscreen
+  ansible.builtin.copy:
+    src: files/lockscreens/lockscreen_default_gruvbox.png
+    dest: "~/.cache/lockscreen.png"
+  when: "theme == 'gruvbox'"
+
+- name: Copy gruvbox lightdm background
+  ansible.builtin.copy:
+    src: files/lockscreens/lockscreen_default_gruvbox.jpg
+    dest: "/usr/share/pixmaps/gruvbox_background.jpg" 
+  when: "theme == 'gruvbox'"
+  become: true
+
+- name: Clone Chicago95 repository
+  git:
+    repo: https://github.com/grassmunk/Chicago95
+    dest: /tmp/Chicago95
+  when: "theme == 'win95'"
+  tags: plymouth
+
+- name: Check if "splash" is already present in GRUB_CMDLINE_LINUX_DEFAULT
+  ansible.builtin.shell: "grep -q 'GRUB_CMDLINE_LINUX_DEFAULT.*splash' /etc/default/grub"
+  register: splash_check
+  changed_when: false
+  failed_when: false
+  ignore_errors: true
+  tags: plymouth
+
+- name: Append "splash" to GRUB_CMDLINE_LINUX_DEFAULT if not already present
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^(GRUB_CMDLINE_LINUX_DEFAULT="[^"]*)( *splash)?(.*)$'
+    line: '\1 splash\3'
+    backrefs: true
+  become: true
+  when: splash_check.rc != 0
+  tags: plymouth
+
+- name: Clone plymouth-themes repository
+  git:
+    repo: https://github.com/adi1090x/plymouth-themes
+    dest: /tmp/plymouth-themes
+  when: "theme == 'gruvbox'"
+  tags: plymouth
+
+
+- name: Copy Loader theme to Plymouth themes directory
+  ansible.builtin.copy:
+    src: /tmp/plymouth-themes/pack_3/loader
+    dest: /usr/share/plymouth/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: plymouth
+
+
+- name: Set Loader as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: plymouth-set-default-theme -R loader
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: plymouth
+
+- name: Copy RetroTux theme to Plymouth themes directory
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Plymouth/RetroTux
+    dest: /usr/share/plymouth/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+  tags: plymouth
+
+- name: Set RetroTux as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: plymouth-set-default-theme -R RetroTux
+  become: true
+  when: "theme == 'win95'"
+  tags: plymouth
+
+- name: Copy grub2-gruvbox theme to grub themes directory
+  ansible.builtin.copy:
+    src: files/grub/themes/gruvbox
+    dest: /boot/grub/themes/
+    remote_src: false
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Append GRUB_THEME="/boot/grub/themes/gruvbox/theme.txt" to /etc/default/grub
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    line: "GRUB_THEME=\"/boot/grub/themes/gruvbox/theme.txt\""
+    insertafter: '^GRUB_CMDLINE_LINUX='
+  become: true
+  when: "theme == 'gruvbox'"
+  tags: grub
+
+- name: Clone grub-theme-win95 repository to /tmp/
+  ansible.builtin.git:
+    repo: https://github.com/a1ive/grub-theme-win95.git
+    dest: /tmp/grub-theme-win95
+    force: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Create /boot/grub/themes directory
+  ansible.builtin.file:
+    path: /boot/grub/themes
+    state: directory
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Copy win95 directory to /boot/grub/themes/
+  ansible.builtin.copy:
+    src: /tmp/grub-theme-win95/win95
+    dest: /boot/grub/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Append GRUB_THEME="/boot/grub/themes/win95/theme.txt" to /etc/default/grub
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    line: "GRUB_THEME=\"/boot/grub/themes/win95/theme.txt\""
+    insertafter: '^GRUB_CMDLINE_LINUX='
+  become: true
+  when: "theme == 'win95'"
+  tags: grub
+
+- name: Run update-grub command
+  ansible.builtin.command:
+    cmd: update-grub
+  become: true
+  tags: grub
+
+- name: Copy Chicago95 theme to /usr/share/themes/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Theme/Chicago95
+    dest: /usr/share/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 icons to /usr/share/icons/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Icons/Chicago95-tux
+    dest: /usr/share/icons/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 icons to ~/.icons/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Icons/Chicago95-tux
+    dest: ~/.icons/
+    remote_src: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 theme to ~/.themes/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Theme/Chicago95
+    dest: ~/.themes/
+    remote_src: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 lockscreen
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Extras/Backgrounds/Wallpaper/Setup.png
+    dest: ~/.cache/lockscreen.png
+    remote_src: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 lightdm background
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Extras/Backgrounds/Wallpaper/Setup.png
+    dest: /usr/share/pixmaps/setup.png 
+    remote_src: true
+  when: "theme == 'win95'"
+
+  become: true
+- name: Copy Chicago95 qt style to /usr/share/qt5ct/colors
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Extras/Chicago95_qt.conf
+    dest: /usr/share/qt5ct/colors/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy lightdm conf template
+  template:
+    src: templates/lightdm/lightdm-gtk-greeter.conf.j2
+    dest: /etc/lightdm/lightdm-gtk-greeter.conf 
+  become: true
+
+- name: Enable lightdm.service
+  ansible.builtin.service:
+    name: lightdm.service
+    enabled: true
+    state: stopped 
+  become: true 
+
+- name: Create ~/.config/qt5ct directory
+  ansible.builtin.file:
+    path: ~/.config/qt5ct
+    state: directory
+
+- name: Copy qt5ct template
+  template:
+    src: templates/qt5ct/qt5ct.conf.j2
+    dest: ~/.config/qt5ct/qt5ct.conf
+
+- name: Copy gtkrc-2.0 template
+  template:
+    src: templates/.gtkrc-2.0.j2
+    dest: ~/.gtkrc-2.0
+
+- name: Copy .xinitrc template
+  template:
+    src: templates/.xinitrc.j2
+    dest: ~/.xinitrc
+
+- name: Add lines to /etc/environment
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: |
+      GTK_THEME="Chicago95"
+      QT_QPA_PLATFORMTHEME=qt5ct
+  become: true
+  when: "theme == 'win95'"
+
+- name: Add lines to /etc/environment
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: |
+      GTK_THEME="Gruvbox-Dark"
+      QT_QPA_PLATFORMTHEME=qt5ct
+  become: true
+  when: "theme == 'gruvbox'"

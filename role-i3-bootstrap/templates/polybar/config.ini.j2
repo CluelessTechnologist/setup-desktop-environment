@@ -1,0 +1,549 @@
+{% if theme == 'gruvbox' %}
+[colors]
+darkgray = #1d2021 
+orange = #d65d0e
+white = #ebdbb2
+gray = #585858
+black = #090909
+red = #c795ae
+blue = #95aec7
+yellow = #c7ae95
+green = #aec795
+background = #000000 
+background-alt = #4e4e4e
+foreground = #ebdbb2 
+foreground-alt = #4e4e4e
+primary = #d79921 
+secondary = #FF6200
+alert = #fb4934
+disabled = #000000
+
+[bar/example]
+width = 100%
+height = 20pt
+
+; dpi = 96
+
+background = ${colors.background}
+foreground = ${colors.foreground}
+
+line-size = 3pt
+
+border-size = 4pt
+border-color = #000000
+
+padding-left = 0
+padding-right = 0
+
+module-margin = 1
+
+separator = 
+separator-foreground = ${colors.disabled}
+
+font-0 = monospace:size=8;2
+font-1 = Terminess Nerd Font:size=8;2
+font-2 = Noto Color Emoji:scale=15;
+modules-left = xworkspaces
+modules-center = wlan eth power run help
+modules-right ={% if system_type == 'laptop' %} backlight battery{% endif %} btc filesystem cpu memory pulseaudio date
+
+cursor-click = pointer
+cursor-scroll = ns-resize
+
+enable-ipc = true
+
+tray-position = right
+
+; wm-restack = generic
+; wm-restack = bspwm
+; wm-restack = i3
+
+; override-redirect = true
+
+[module/xworkspaces]
+type = internal/xworkspaces
+
+label-active = %name%
+label-active-background = ${colors.background-alt}
+label-active-underline= #cc241d 
+label-active-padding = 1
+
+label-occupied = %name%
+label-occupied-padding = 1
+
+label-urgent = %name%
+label-urgent-background = ${colors.alert}
+label-urgent-padding = 1
+
+label-empty = %name%
+label-empty-foreground = ${colors.disabled}
+label-empty-padding = 1
+
+[module/filesystem]
+type = internal/fs
+interval = 25
+
+mount-0 = /
+
+label-mounted = %{F#d79921}%mountpoint%%{F#d79921} Free: %free%
+
+label-unmounted = %mountpoint% not mounted
+label-unmounted-foreground = ${colors.disabled}
+format-mounted-background = #282828
+format-mounted-foreground = ${colors.primary}
+format-mounted-padding = 1
+
+[module/pulseaudio]
+type = internal/pulseaudio
+
+format-volume-prefix = "VOL "
+format-volume-prefix-foreground = ${colors.primary}
+format-volume = <label-volume>
+format-volume-background = #282828
+format-volume-foreground = ${colors.primary}
+format-padding = 1
+label-volume = %percentage%%
+
+label-muted = 🔇
+label-muted-foreground = ${colors.disabled}
+
+[module/xkeyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+
+label-layout = %layout%
+label-layout-foreground = ${colors.primary}
+
+label-indicator-padding = 2
+label-indicator-margin = 1
+label-indicator-foreground = ${colors.background}
+label-indicator-background = ${colors.secondary}
+
+[module/memory]
+type = internal/memory
+interval = 2
+format-prefix = "MEM: "
+format-prefix-foreground = ${colors.primary}
+label = %gb_used:2%/%gb_total:2% (%percentage_used:2%%) 
+format = <label> 
+format-background = #282828
+format-foreground = ${colors.primary}
+format-padding = 1
+
+[module/cpu]
+type = internal/cpu
+interval = 2
+format-prefix = "CPU: "
+label-cpu = %percentage:2%%
+format = <label> 
+format-background = #282828
+format-foreground = ${colors.primary}
+format-padding = 1
+
+[network-base]
+type = internal/network
+interval = 5
+format-connected = <label-connected>
+format-disconnected = <label-disconnected>
+label-disconnected = %{F#F0C674}%ifname%%{F#707880} disconnected
+label-connected = %{F#d79921}%ifname:%%{F#d79921} ↑ %upspeed% ↓ %downspeed%
+; format-connected = <label connected>
+format-connected-background = #282828
+format-connected-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+format-connected-padding = 1
+format-disconnected-background = #282828
+format-disconnected-foreground = ${colors.primary}
+format-disconnected-padding = 1
+
+[module/wlan]
+inherit = network-base
+interface-type = wireless
+
+[module/eth]
+inherit = network-base
+interface-type = wired
+
+[module/date]
+type = internal/date
+interval = 1
+
+date = %Y-%m-%d %H:%M:%S
+
+label = %date%
+label-foreground = ${colors.primary}
+format = "%{A1:gsimplecal:} <label>%{A}"
+format-background = #282828
+format-foreground = ${colors.primary}
+format-padding = 1
+
+[module/run]
+type = custom/text
+content = "Run"
+click-left = j4-dmenu-desktop --dmenu='dmenu -i -l 20 -nb "#282828" -nf "#ebdbb2" -sb "#fb4934" -sf "#fabd2f"' --term='xterm' 
+; Set background and foreground colors to create the button effect
+content-background = #282828
+content-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+content-padding = 1
+; ; Use underline to simulate a border or shadow
+content-underline = #ebdbb2
+content-underline-size = 2
+
+[module/power]
+type = custom/text
+content = "⏻"
+content-font = 2
+click-left = xterm -e python3 /usr/local/bin/logoutmenu.py
+; Set background and foreground colors to create the button effect
+content-background = #282828
+content-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+content-padding = 1
+; ; Use underline to simulate a border or shadow
+content-underline = #ebdbb2
+content-underline-size = 2
+
+[module/help]
+type = custom/text
+content = "?"
+click-left = xdg-open https://i3wm.org/docs/refcard.html 
+; Set background and foreground colors to create the button effect
+content-background = #282828
+content-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+content-padding = 1
+; ; Use underline to simulate a border or shadow
+content-underline = #ebdbb2
+content-underline-size = 2
+
+[module/btc]
+type = custom/script
+exec = curl -s https://api.coindesk.com/v1/bpi/currentprice/USD.json | jq -r '.bpi.USD.rate' | sed "s/\\..*//" 
+interval = 150
+format-prefix = " "
+prefix-font = 2
+; Set background and foreground colors to create the button effect
+format-background = #282828
+format-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+format-padding = 1
+
+{% if system_type == 'laptop' %}
+[module/battery]
+type = internal/battery
+full-at = 99
+low-at = 5
+battery = BAT0
+adapter = ADP1
+poll-interval = 5
+label-discharging = 🔋 %percentage%%
+label-discharging-font = 2
+format-discharging-background = #282828
+format-discharging-foreground = ${colors.primary}
+label-charging = 🔌 %percentage%%
+label-charging-font = 2
+format-charging-background = #282828
+format-charging-foreground = ${colors.primary}
+
+[module/backlight]
+type = internal/backlight
+card = acpi_video0
+use-actual-brightness = true
+poll-interval = 0
+enable-scroll = true
+scroll-interval = 10
+format = <label> <ramp>
+label = %percentage%%
+format-background = #282828
+format-foreground = ${colors.primary}
+format-padding = 1
+ramp-0 = 🌕
+ramp-1 = 🌔
+ramp-2 = 🌓
+ramp-3 = 🌒
+ramp-4 = 🌑
+
+{% endif %}
+[settings]
+screenchange-reload = true
+pseudo-transparency = true
+
+; vim:ft=dosini
+
+{% elif theme == 'win95' %}
+[colors]
+blue = #2979ff
+cyan = #00e5ff
+green = #00e676
+orange = #ff9100
+pink = #f50057
+purple = #d500f9
+red = #ff1744
+yellow = #ffea00
+black = #C0C0C0
+white = #FFF
+background = #c3c7cb 
+background-alt = #7e7e7e
+foreground = #232323 
+foreground-alt = #474747
+primary = #FFFFFF 
+secondary = #FF6200
+alert = #fb4934
+disabled = #000000
+
+[bar/example]
+width = 100%
+height = 20pt
+
+; dpi = 96
+
+background = ${colors.background}
+foreground = ${colors.foreground}
+
+line-size = 3pt
+
+border-size = 4pt
+border-color = #7e7e7e 
+
+padding-left = 0
+padding-right = 0
+
+module-margin = 1
+
+separator = 
+separator-foreground = ${colors.disabled}
+
+font-0 = monospace:size=8;2
+font-1 = Terminess Nerd Font:size=8;2
+font-2 = Noto Color Emoji:scale=15;
+
+modules-left = xworkspaces
+modules-center = wlan eth power run help
+modules-right ={% if system_type == 'laptop' %} backlight battery{% endif %} btc filesystem cpu memory pulseaudio date
+
+cursor-click = pointer
+cursor-scroll = ns-resize
+
+enable-ipc = true
+
+tray-position = right
+
+; wm-restack = generic
+; wm-restack = bspwm
+; wm-restack = i3
+
+; override-redirect = true
+
+[module/xworkspaces]
+type = internal/xworkspaces
+
+label-active = %name%
+label-active-background = #001f7e
+label-active-foreground = #FFFFFF  
+label-active-padding = 1
+
+label-occupied = %name%
+label-occupied-padding = 1
+
+label-urgent = %name%
+label-urgent-background = ${colors.alert}
+label-urgent-padding = 1
+
+label-empty = %name%
+label-empty-foreground = ${colors.disabled}
+label-empty-padding = 1
+
+[module/filesystem]
+type = internal/fs
+interval = 25
+
+mount-0 = /
+
+label-mounted = %{F#FFFFFF}%mountpoint%%{F#FFFFFF} Free: %free%
+
+label-unmounted = %mountpoint% not mounted
+label-unmounted-foreground = ${colors.disabled}
+format-mounted-background = #327c7e
+format-mounted-foreground = ${colors.primary}
+format-mounted-padding = 1
+
+[module/pulseaudio]
+type = internal/pulseaudio
+
+format-volume-prefix = "VOL "
+format-volume-prefix-foreground = ${colors.primary}
+format-volume = <label-volume>
+format-volume-background = #327c7e
+format-volume-foreground = ${colors.primary}
+format-padding = 1
+label-volume = %percentage%%
+
+label-muted = 🔇
+label-muted-foreground = ${colors.disabled}
+
+[module/xkeyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+
+label-layout = %layout%
+label-layout-foreground = ${colors.primary}
+
+label-indicator-padding = 2
+label-indicator-margin = 1
+label-indicator-foreground = ${colors.background}
+label-indicator-background = ${colors.secondary}
+
+[module/memory]
+type = internal/memory
+interval = 2
+format-prefix = "MEM: "
+format-prefix-foreground = ${colors.primary}
+label = %gb_used:2%/%gb_total:2% (%percentage_used:2%%)
+format = <label> 
+format-background = #327c7e
+format-foreground = ${colors.primary}
+format-padding = 1
+
+[module/cpu]
+type = internal/cpu
+interval = 2
+format-prefix = "CPU: "
+label-cpu = %percentage:2%%
+format = <label> 
+format-background = #327c7e
+format-foreground = ${colors.primary}
+format-padding = 1
+
+[network-base]
+type = internal/network
+interval = 5
+format-connected = <label-connected>
+format-disconnected = <label-disconnected>
+label-disconnected = %{F#FFFFFF}%ifname%%{F#fd5960} disconnected 
+label-connected = %{F#FFFFFF}%ifname:%%{F#FFFFFF} ↑ %upspeed% ↓ %downspeed%
+; format-connected = <label connected>
+format-connected-background = #327c7e 
+format-connected-foreground = #FFFFFF 
+; Add padding to make it look more like a button
+format-connected-padding = 1
+format-disconnected-background = #327c7e
+format-disconnected-foreground = #FFFFFF
+format-disconnected-padding = 1
+
+[module/wlan]
+inherit = network-base
+interface-type = wireless
+
+[module/eth]
+inherit = network-base
+interface-type = wired
+
+[module/date]
+type = internal/date
+interval = 1
+
+date = %Y-%m-%d %H:%M:%S
+
+label = %date%
+label-foreground = ${colors.primary}
+format = "%{A1:gsimplecal:} <label>%{A}"
+format-background = #327c7e
+format-foreground = ${colors.primary}
+format-padding = 1
+
+[module/run]
+type = custom/text
+content = "Run"
+click-left = j4-dmenu-desktop --dmenu='dmenu -i -l 20 -nb "#7e7e7e" -nf "#000000" -sf "#ffffff" -sb "#000080"' --term='xterm' 
+; Set background and foreground colors to create the button effect
+content-background = #327c7e
+content-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+content-padding = 1
+; ; Use underline to simulate a border or shadow
+content-underline = #001f7e 
+content-underline-size = 2
+
+[module/power]
+type = custom/text
+content = "⏻"
+content-font = 2
+click-left = xterm -e python3 /usr/local/bin/logoutmenu.py
+; Set background and foreground colors to create the button effect
+content-background = #327c7e
+content-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+content-padding = 1
+; ; Use underline to simulate a border or shadow
+content-underline = #001f7e 
+content-underline-size = 2
+
+[module/help]
+type = custom/text
+content = "?"
+click-left = xdg-open https://i3wm.org/docs/refcard.html 
+; Set background and foreground colors to create the button effect
+content-background = #327c7e
+content-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+content-padding = 1
+; ; Use underline to simulate a border or shadow
+content-underline = #001f7e 
+content-underline-size = 2
+
+[module/btc]
+type = custom/script
+exec = curl -s https://api.coindesk.com/v1/bpi/currentprice/USD.json | jq -r '.bpi.USD.rate' | sed "s/\\..*//" 
+; | sed \"s/\\..*//\"
+interval = 150
+format-prefix = " "
+prefix-font = 2
+; Set background and foreground colors to create the button effect
+format-background = #327c7e
+format-foreground = ${colors.primary}
+; Add padding to make it look more like a button
+format-padding = 1
+{% if system_type == 'laptop' %}
+[module/battery]
+type = internal/battery
+full-at = 99
+low-at = 5
+battery = BAT0
+adapter = ADP1
+poll-interval = 5
+label-discharging = 🔋 %percentage%%
+label-discharging-font = 2
+format-discharging-background = #327c7e
+format-discharging-foreground = ${colors.primary}
+label-charging = 🔌 %percentage%%
+label-charging-font = 2
+format-charging-background = #327c7e
+format-charging-foreground = ${colors.primary}
+
+[module/backlight]
+type = internal/backlight
+card = acpi_video0
+use-actual-brightness = true
+poll-interval = 0
+enable-scroll = true
+scroll-interval = 10
+format = <label> <ramp>
+label = %percentage%%
+format-background = #327c7e
+format-foreground = ${colors.primary}
+format-padding = 1
+ramp-0 = 🌕
+ramp-1 = 🌔
+ramp-2 = 🌓
+ramp-3 = 🌒
+ramp-4 = 🌑
+
+{% endif %}
+
+[settings]
+screenchange-reload = true
+pseudo-transparency = true
+
+; vim:ft=dosini
+{% endif %}

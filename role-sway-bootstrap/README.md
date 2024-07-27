@@ -35,17 +35,17 @@ Choose keyboard layout, this is usually a two letter country code (see https://w
 After the playbook has finished all you need to do is restart your machine and you should be greeted by the empttty login.
 ### Screenshots
 #### Win95
-![Sway desktop with Win95 theme, grub menu](/screenshots/win95/win95_grub.jpg "Sway - Grub Win95 theme")
-![Sway desktop with Win95 theme, plymouth splash](/screenshots/win95/win95_plymouth.jpg "Sway - Plymouth Win95 theme")
-![Sway desktop with Win95 theme, login screen](/screenshots/win95/win95_emptty_prompt.jpg "Sway - Ly Win95 theme")
-![Sway desktop with Win95 theme, two applications running](/screenshots/win95/win95_desktop.jpg "Sway - Win95 theme desktop")
-![Sway desktop with Win95 theme, logout menu](/screenshots/win95/win95_logout.jpg "Sway - Win95 theme logout menu")
+![Sway desktop with Win95 theme, grub menu](/screenshots/role-sway-bootstrap/win95/win95_grub.jpg "Sway - Grub Win95 theme")
+![Sway desktop with Win95 theme, plymouth splash](/screenshots/role-sway-bootstrap/win95/win95_plymouth.jpg "Sway - Plymouth Win95 theme")
+![Sway desktop with Win95 theme, login screen](/screenshots/role-sway-bootstrap/win95/win95_emptty_prompt.jpg "Sway - emptty Win95 theme")
+![Sway desktop with Win95 theme, two applications running](/screenshots/role-sway-bootstrap/win95/win95_desktop.jpg "Sway - Win95 theme desktop")
+![Sway desktop with Win95 theme, logout menu](/screenshots/role-sway-bootstrap/win95/win95_logout.jpg "Sway - Win95 theme logout menu")
 #### Gruvbox
-![Sway desktop with Gruvbox theme, grub menu](/screenshots/gruvbox/gruvbox_grub.jpg "Sway - Grub Gruvbox theme")
-![Sway desktop with Gruvbox theme, plymouth splash](/screenshots/gruvbox/gruvbox_plymouth.jpg "Sway - Plymouth Gruvbox theme")
-![Sway desktop with Gruvbox theme, login screen](/screenshots/gruvbox/gruvbox_emptty.jpg "Sway - Ly Gruvbox theme")
-![Sway desktop with Gruvbox theme, two applications running](/screenshots/gruvbox/gruvbox_desktop.jpg "Sway - Gruvbox theme desktop")
-![Sway desktop with Gruvbox theme, logout menu](/screenshots/gruvbox/gruvbox_logout.jpg "Sway - Gruvbox theme logout menu")
+![Sway desktop with Gruvbox theme, grub menu](/screenshots/role-sway-bootstrap/gruvbox/gruvbox_grub.jpg "Sway - Grub Gruvbox theme")
+![Sway desktop with Gruvbox theme, plymouth splash](/screenshots/role-sway-bootstrap/gruvbox/gruvbox_plymouth.jpg "Sway - Plymouth Gruvbox theme")
+![Sway desktop with Gruvbox theme, login screen](/screenshots/role-sway-bootstrap/gruvbox/gruvbox_emptty.jpg "Sway - emptty Gruvbox theme")
+![Sway desktop with Gruvbox theme, two applications running](/screenshots/role-sway-bootstrap/gruvbox/gruvbox_desktop.jpg "Sway - Gruvbox theme desktop")
+![Sway desktop with Gruvbox theme, logout menu](/screenshots/role-sway-bootstrap/gruvbox/gruvbox_logout.jpg "Sway - Gruvbox theme logout menu")
 ### Components used  
 * **WM:** [Sway](https://swaywm.org)
 * **Bar:** [Waybar](https://github.com/Alexays/Waybar)

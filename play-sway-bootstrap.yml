@@ -1,5 +1,5 @@
 ---
-- name: What machine do you which to bootstrap sway on? 
+- name: What machine do you want to bootstrap sway on? 
   hosts: localhost
   tags: always
 

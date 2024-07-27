@@ -1,0 +1,9 @@
+[dmenu]
+{% if theme == 'win95' %}
+dmenu_command = /usr/bin/dmenu -i -l 20 -nb "#7e7e7e" -nf "#000000" -sf "#ffffff" -sb "#000080"
+{% elif theme == 'gruvbox' %}
+dmenu_command = /usr/bin/dmenu -i -l 20 -nb "#282828" -nf "#ebdbb2" -sb "#fb4934" -sf "#fabd2f" 
+{% endif %}
+[editor]
+terminal = xterm 
+gui_if_available = True 
