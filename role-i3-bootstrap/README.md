@@ -69,7 +69,7 @@ After the playbook has finished all you need to do is restart your machine and y
 * **XTerm theme:** Hyper from [xresources-themes](https://github.com/janoamaral/Xresources-themes)
 * **Polybar theme:** Custom 
 * **Wallpaper:** [Green and brown plant on brown woven basket by Toa Hefitba](https://unsplash.com/photos/green-and-brown-plant-on-brown-woven-basket-p6GQoZHw_TI)
-* **emptty:** Custom with ASCII art from [Ascii Art Dictionary](http://www.ascii-art.de/ascii/c/computer.txt)
+* **LightDM:** [Chicago95](https://github.com/grassmunk/Chicago95)
 * **Lockscreen:** Background image from the Win95 setup
 * **Grub theme:** [GRUB Windows 95 Theme](https://github.com/a1ive/grub-theme-win95)
 * **Plymouth theme:** [Plymouth RetroTux Theme from Chicago95](https://github.com/grassmunk/Chicago95)
@@ -79,7 +79,7 @@ After the playbook has finished all you need to do is restart your machine and y
 * **XTerm theme:** Gruvbox dark from [gruvbox-contrib](https://github.com/morhetz/gruvbox-contrib/blob/master/xresources/gruvbox-dark.xresources)
 * **Polybar theme:** Custom 
 * **Wallpaper:** [forest-3](https://gruvbox-wallpapers.pages.dev/wallpapers/irl)
-* **emptty:** Custom with ASCII art from [Ascii Art Dictionary](http://www.ascii-art.de/ascii/pqr/penguins.txt)
+* **LightDM:** [Gruvbox-GTK-Theme](https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme)
 * **Lockscreen:** [Minimalism 2](https://hdqwalls.com/minimalism-2-wallpaper)
 * **wlogout:** [Cozy Grubox with GTK icons](https://github.com/0bCdian/Hyprland_dotfiles/tree/Cozy_Gruvbox)
 * **Grub theme:** [grub2-gruvbox](https://git.fs.lmu.de/adnan/grub2-gruvbox/-/tree/master)
