@@ -1,0 +1,3 @@
+---
+# vars file for role-openbsd-i3-bootstrap
+ansible_become_method: doas

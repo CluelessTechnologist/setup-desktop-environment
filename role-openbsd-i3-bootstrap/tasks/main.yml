@@ -1,0 +1,547 @@
+---
+# tasks file for role-openbsd-i3-bootstrap
+- name: Check if system_type is valid
+  fail:
+    msg: "Invalid system_type. Choose from desktop, virtual_machine, or laptop."
+  when: system_type not in ['desktop', 'virtual_machine', 'laptop']
+
+- name: Check if theme is valid
+  fail:
+    msg: "Invalid theme. Choose either 'win95' or 'gruvbox'."
+  when: theme not in ['win95', 'gruvbox']
+
+- name: Print distro information
+  ansible.builtin.debug:
+    msg: "The distribution is {{ ansible_distribution }}"
+  tags: distro
+
+- name: Install common packages
+  become: true
+  community.general.openbsd_pkg:
+    state: present
+    name:
+      - i3
+      - i3lock
+      - sxhkd
+      - xautolock
+      - xss-lock
+      - feh
+      - pavucontrol
+      - playerctl
+      - gsimplecal
+      - dunst
+      - polybar
+      - unzip--iconv
+      - calc
+      - git
+      - qt5ct
+      - kiconthemes
+      - tesseract
+      - font-awesome
+      - powerline-fonts
+      - noto-fonts
+      - jq
+      - curl
+      - wget
+      - dtpstree 
+      - libnotify
+      - py3-urwid
+      - rofi
+      - fzf
+      - zsh
+      - zsh-syntax-highlighting
+      - the_silver_searcher
+
+- name: Copy battery scripts 
+  ansible.builtin.copy:
+    src: "files/scripts/{{ item }}"
+    dest: "/usr/local/bin/"
+    mode: '0755'
+  loop:
+    - battery_monitor.ksh 
+    - battery_check.ksh 
+  become: true
+  when: "system_type == 'laptop'"
+          
+- name: Create directory for local fonts
+  file:
+    path: ~/.local/share/fonts
+    state: directory
+  tags: fonts
+
+- name: Create directory for source 
+  file:
+    path: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts" 
+    state: directory
+  tags: fonts
+
+- name: Download Terminus Nerd Font
+  ansible.builtin.get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Terminus.zip"
+    dest: "/tmp/Terminus.zip"
+  become: false
+  tags: fonts
+
+- name: Unzip Terminus Nerd Font
+  ansible.builtin.unarchive:
+    src: "/tmp/Terminus.zip"
+    dest: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts"
+    remote_src: true
+  become: false
+  tags: fonts
+
+- name: Select fonts to install
+  ansible.builtin.find:
+    recurse: true
+    use_regex: true
+    paths: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts"
+    patterns:
+      - '^.*?((?!Windows).)*?\.ttf$'
+  register: fonts_to_install
+  tags: fonts
+
+- ansible.builtin.copy:
+    dest: "{{ ansible_env.HOME }}/.local/share/fonts/{{ item.path | basename }}"
+    src: "{{ item.path }}"
+    remote_src: true
+  loop: "{{ fonts_to_install.files }}"
+  tags: fonts
+
+- name: Update font config cache
+  ansible.builtin.command:
+    cmd: "fc-cache -fv"
+  tags: fonts
+
+- name: Delete src directory
+  ansible.builtin.file:
+    state: absent
+    path: ~/src/
+  tags: removal
+
+- name: Create directory for sxhkd config
+  file:
+    path: ~/.config/sxhkd
+    state: directory
+
+- name: Copy sxhkd configuration template
+  template:
+    src: templates/sxhkd/sxhkdrc.j2
+    dest: ~/.config/sxhkd/sxhkdrc
+
+- name: Create directory for dunst config
+  file:
+    path: ~/.config/dunst
+    state: directory
+
+- name: Copy dunst config template
+  template:
+    src: templates/dunst/dunstrc.j2
+    dest: ~/.config/dunst/dunstrc
+
+- name: Create directory for xterm config
+  file:
+    path: ~/.config/xresources
+    state: directory
+
+- name: Copy xterm Gruvbox theme template
+  template:
+    src: templates/xterm/xresources/gruvbox-dark.xresources
+    dest: ~/.config/xresources/gruvbox-dark.xresources
+  when: "theme == 'gruvbox'"
+
+- name: Copy xterm Win95 theme template
+  template:
+    src: templates/xterm/xresources/hyper.Xresources
+    dest: ~/.config/xresources/hyper.Xresources
+  when: "theme == 'win95'"
+
+- name: Copy xterm configuration template
+  template:
+    src: templates/xterm/xresources/.Xresources
+    dest: ~/.config/xresources/.Xresources
+
+- name: Create symbolic link for .Xresources
+  ansible.builtin.file:
+    src: "~/.config/xresources/.Xresources"
+    dest: "~/.Xresources"
+    state: link
+  become: false
+
+- name: Create directory for gsimplecal config
+  file:
+    path: ~/.config/gsimplecal
+    state: directory
+
+- name: Copy gsimplecal configuration template
+  template:
+    src: templates/gsimplecal/config.j2
+    dest: ~/.config/gsimplecal/config
+
+- name: Create directory for polybar config
+  file:
+    path: ~/.config/polybar
+    state: directory
+  tags: polybar
+
+- name: Copy polybar config template
+  template:
+    src: templates/polybar/config.ini.j2
+    dest: ~/.config/polybar/config.ini
+  tags: polybar
+
+- name: Copy logoutmenu.py script
+  ansible.builtin.copy:
+    src: files/scripts/logoutmenu.py
+    dest: "/usr/local/bin/logoutmenu.py"
+    mode: '0755'
+  become: true
+
+- name: Copy check_mounts.py script
+  ansible.builtin.copy:
+    src: files/scripts/check_mounts.py
+    dest: "/usr/local/bin/check_mounts.py"
+    mode: '0755'
+  become: true
+
+- name: Copy mem_check.ksh script
+  ansible.builtin.copy:
+    src: files/scripts/mem_check.ksh
+    dest: "/usr/local/bin/mem_check.ksh"
+    mode: '0755'
+  become: true
+
+- name: Copy Win95 wallpaper
+  ansible.builtin.copy:
+    src: files/wallpapers/wallpaper_default_win95.jpg
+    dest: "~/.cache/wallpaper_default_win95.jpg"
+  when: "theme == 'win95'"
+
+- name: Create directory for i3 config
+  file:
+    path: ~/.config/i3
+    state: directory
+  tags: i3
+
+- name: Copy i3 configuration template
+  template:
+    src: templates/i3/config.j2
+    dest: ~/.config/i3/config
+  tags: i3
+
+- name: Copy track_prev_focus.py
+  ansible.builtin.copy:
+    src: files/scripts/track_prev_focus.py
+    dest: /usr/local/bin/track_prev_focus.py
+    mode: '0755'
+  become: true
+
+- name: Create ~/.themes directory
+  ansible.builtin.file:
+    path: ~/.themes
+    state: directory
+
+- name: Create ~/.icons directory
+  ansible.builtin.file:
+    path: ~/.icons
+    state: directory
+
+- name: Clone Gruvbox-GTK-Theme repository
+  git:
+    repo: https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme
+    dest: ~/Gruvbox-GTK-Theme
+  when: "theme == 'gruvbox'"
+
+- name: Copy Gruvbox-GTK-Theme icons to /usr/share/icons/
+  ansible.builtin.copy:
+    src: "{{ ansible_env.HOME }}/Gruvbox-GTK-Theme/icons/Gruvbox-Dark"
+    dest: /usr/share/icons/
+    remote_src: true
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Copy icons to ~/.icons/
+  ansible.builtin.copy:
+    src: ~/Gruvbox-GTK-Theme/icons/Gruvbox-Dark
+    dest: ~/.icons/
+    remote_src: true
+  when: "theme == 'gruvbox'"
+
+- name: Delete Gruvbox-GTK-Theme directory
+  ansible.builtin.file:
+    state: absent
+    path: ~/Gruvbox-GTK-Theme
+  tags: removal
+
+- name: Create /usr/share/themes directory
+  ansible.builtin.file:
+    path: /usr/share/themes
+    state: directory
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Create directory /tmp/gruvbox
+  file:
+    path: /tmp/gruvbox
+    state: directory
+    mode: 0755
+  when: "theme == 'gruvbox'"
+
+- name: Download Gruvbox themes
+  ansible.builtin.shell:
+    cmd: curl -Lfs https://www.pling.com/p/1681313/loadFiles | jq -r '.files | first.version as $v | .[] | select(.version == $v).url' | perl -pe 's/\%(\w\w)/chr hex $1/ge' | xargs wget
+  args:
+    chdir: /tmp/gruvbox
+  when: "theme == 'gruvbox'"
+
+- name: Find all theme zip files in the directory
+  find:
+    paths: /tmp/gruvbox/
+    patterns: "*.zip"
+  register: zip_files
+  tags: gruvbox_themes
+  when: "theme == 'gruvbox'"
+
+- name: Extract each zip file to ~/.themes
+  unarchive:
+    src: "{{ item.path }}"
+    dest: "~/.themes"
+    remote_src: true
+  with_items: "{{ zip_files.files }}"
+  tags: gruvbox_themes
+  when: "theme == 'gruvbox'"
+
+- name: Extract each zip file to /usr/share/themes
+  unarchive:
+    src: "{{ item.path }}"
+    dest: "/usr/share/themes"
+    remote_src: true
+  with_items: "{{ zip_files.files }}"
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Copy gruvbox wallpaper
+  ansible.builtin.copy:
+    src: files/wallpapers/wallpaper_default_gruvbox.jpg
+    dest: "~/.cache/wallpaper_default_gruvbox.jpg"
+  when: "theme == 'gruvbox'"
+
+- name: Copy gruvbox lockscreen
+  ansible.builtin.copy:
+    src: files/lockscreens/lockscreen_default_gruvbox.png
+    dest: "~/.cache/lockscreen.png"
+  when: "theme == 'gruvbox'"
+
+- name: Copy gruvbox xenodm background
+  ansible.builtin.copy:
+    src: files/lockscreens/lockscreen_default_gruvbox.png
+    dest: "/etc/X11/xenodm/pixmaps/gruvbox.png" 
+  when: "theme == 'gruvbox'"
+  become: true
+
+- name: Clone Chicago95 repository
+  git:
+    repo: https://github.com/grassmunk/Chicago95
+    dest: /tmp/Chicago95
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 theme to /usr/share/themes/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Theme/Chicago95
+    dest: /usr/share/themes/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 icons to /usr/share/icons/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Icons/Chicago95-tux
+    dest: /usr/share/icons/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 icons to ~/.icons/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Icons/Chicago95-tux
+    dest: ~/.icons/
+    remote_src: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 theme to ~/.themes/
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Theme/Chicago95
+    dest: ~/.themes/
+    remote_src: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 lockscreen
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Extras/Backgrounds/Wallpaper/Setup.png
+    dest: ~/.cache/lockscreen.png
+    remote_src: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 setup picture to xenodm pixmaps
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Extras/Backgrounds/Wallpaper/Setup.png
+    dest: /etc/X11/xenodm/pixmaps/setup.png 
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy Chicago95 qt style to /usr/share/qt5ct/colors
+  ansible.builtin.copy:
+    src: /tmp/Chicago95/Extras/Chicago95_qt.conf
+    dest: /usr/share/qt5ct/colors/
+    remote_src: true
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy Gruvbox qt style to /usr/share/qt5ct/colors
+  ansible.builtin.copy:
+    src: files/qt5ct/gruvbox.conf
+    dest: /usr/share/qt5ct/colors/
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Create ~/.config/qt5ct directory
+  ansible.builtin.file:
+    path: ~/.config/qt5ct
+    state: directory
+
+- name: Copy qt5ct template
+  template:
+    src: templates/qt5ct/qt5ct.conf.j2
+    dest: ~/.config/qt5ct/qt5ct.conf
+
+- name: Copy gtkrc-2.0 template
+  template:
+    src: templates/.gtkrc-2.0.j2
+    dest: ~/.gtkrc-2.0
+
+- name: Copy .xsession template
+  template:
+    src: templates/.xsession.j2
+    dest: ~/.xsession
+
+- name: Create /etc/profile
+  ansible.builtin.file:
+    path: "/etc/profile"
+    state: touch
+  become: true
+
+- name: Add lines to /etc/profile
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    line: |
+      GTK_THEME="Chicago95"
+      QT_QPA_PLATFORMTHEME=qt5ct
+  become: true
+  when: "theme == 'win95'"
+
+- name: Add lines to /etc/profile
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    line: |
+      GTK_THEME="Gruvbox-Dark"
+      QT_QPA_PLATFORMTHEME=qt5ct
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Add pkill line to GiveConsole to get rid of xclock after login
+  ansible.builtin.lineinfile:
+    path: /etc/X11/xenodm/GiveConsole
+    line: "pkill xclock" 
+  become: true
+
+- name: Copy xenodm Xsetup_0 template
+  template:
+    src: templates/xenodm/Xsetup_0.j2
+    dest: /etc/X11/xenodm/Xsetup_0
+  become: true
+
+- name: Copy xenodm Xresources template
+  template:
+    src: templates/xenodm/Xresources.j2
+    dest: /etc/X11/xenodm/Xresources 
+  become: true
+
+- name: Copy xenodm win95 avatar files
+  ansible.builtin.copy:
+    src: "files/xenodm/win95/{{ item }}"
+    dest: "/etc/X11/xenodm/pixmaps/"
+    mode: '0644'
+  loop:
+    - avatar_default_15bpp.xpm
+    - avatar_default_1bpp.xpm
+    - avatar_default_4bpp.xpm
+    - avatar_default_8bpp.xpm
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy xenodm gruvbox avatar files
+  ansible.builtin.copy:
+    src: "files/xenodm/gruvbox/{{ item }}"
+    dest: "/etc/X11/xenodm/pixmaps/"
+    mode: '0644'
+  loop:
+    - avatar_default_15bpp.xpm
+    - avatar_default_1bpp.xpm
+    - avatar_default_4bpp.xpm
+    - avatar_default_8bpp.xpm
+  become: true
+  when: "theme == 'gruvbox'"
+
+- name: Enable service xenodm, and restart it
+  ansible.builtin.service:
+    name: xenodm
+    enabled: yes
+    state: restarted
+  become: true
+
+- name: Copy Win95 rofi theme (based on dmenu theme) 
+  template:
+    src: templates/rofi/win95.rasi.j2
+    dest: /usr/local/share/rofi/themes/win95.rasi
+  become: true
+  when: "theme == 'win95'"
+
+- name: Copy kdeglobals when gruvbox to get dark background in Dolphin 
+  template:
+    src: templates/kdeglobals.j2
+    dest: ~/.config/kdeglobals
+  when: "theme == 'gruvbox'"
+
+- name: Append permissions to /etc/doas.conf
+  ansible.builtin.lineinfile:
+    path: /etc/doas.conf
+    line: "permit nopass {{ ansible_user }} as root cmd halt args -p"
+    state: present
+    create: yes
+  become: true
+
+- name: Append reboot permission to /etc/doas.conf
+  ansible.builtin.lineinfile:
+    path: /etc/doas.conf
+    line: "permit nopass {{ ansible_user }} as root cmd /sbin/reboot"
+    state: present
+    create: yes
+  become: true
+
+- name: Append suspend permission to /etc/doas.conf
+  ansible.builtin.lineinfile:
+    path: /etc/doas.conf
+    line: "permit nopass {{ ansible_user }} as root cmd /usr/sbin/zzz"
+    state: present
+    create: yes
+  become: true
+
+- name: Copy zshrc configuration file
+  template:
+    src: templates/zsh/.zshrc.j2
+    dest: ~/.zshrc
+
+- name: Change default shell to zsh for the user
+  become: true
+  ansible.builtin.shell: |
+    chsh -s /usr/local/bin/zsh {{ ansible_user_id }}

@@ -1,6 +1,6 @@
 # Desktop Environment Bootstrap with Ansible 
 ## About 
-One of the big advantages of running Linux is having the freedom to customize your desktop. But it can be quite the burden sometimes, since a desktop consists of many components. It's easy to forget important components or a setting. For the longest time I was running Ubuntu standard desktop for this reason.   
+One of the big advantages of running Linux/BSD is having the freedom to customize your desktop. But it can be quite the burden sometimes, since a desktop consists of many components. It's easy to forget important components or settings. For the longest time I was running Ubuntu standard desktop for this reason.   
 
 "I don't have time to configure my own custom desktop. I'll just use the standard one. Using something that most people use will guarantee a good experience."  
 
@@ -15,7 +15,9 @@ For instructions on how to run the playbooks click the links below.
 ## Supported OSes:
 * Debian 12
 * Arch Linux
+* OpenBSD 7.5 (specific role) 
 
 ## Roles:
 * [**role-sway-bootstrap:** Bootstraps a Sway desktop, complete with theme and all necessary components.](role-sway-bootstrap/README.md)
 * [**role-i3-bootstrap:** Bootstraps a i3 desktop, complete with theme and all necessary components.](role-i3-bootstrap/README.md)
+* [**role-openbsd-i3-bootstrap:** Bootstraps a OpenBSD based i3 desktop, complete with theme and all necessary components.](role-openbsd-i3-bootstrap/README.md)

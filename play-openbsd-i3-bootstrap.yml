@@ -1,0 +1,30 @@
+---
+- name: What machine do you which to bootstrap i3 on? 
+  hosts: localhost
+  tags: always
+
+  vars_prompt:
+  - name: user_ip_address
+    prompt: "Enter the IP address or resolvable DNS name for the machine you want to setup i3 on"
+    private: false
+  gather_facts: false
+  tasks:
+  - name: Add the new host to the inventory
+    add_host:
+      name: "{{ user_ip_address }}"
+      groups: new_hosts
+
+- name: Gathering information before running playbook
+  hosts: new_hosts
+  vars_prompt:
+  - name: system_type
+    prompt: "Choose system type (desktop/virtual_machine/laptop)"
+    private: false
+  - name: theme 
+    prompt: "Choose theme (win95/gruvbox)"
+    private: false
+  - name: keyboard_layout 
+    prompt: "Choose keyboard layout, this is usually a two letter country code (see https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration)"
+    private: false
+  roles: 
+    - role-openbsd-i3-bootstrap

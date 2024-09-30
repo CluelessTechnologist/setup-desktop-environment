@@ -1,0 +1,43 @@
+{% if theme == 'win95' %}
+#!/bin/sh
+# $OpenBSD: Xsetup_0.in,v 1.1 2021/08/30 15:38:27 matthieu Exp $
+
+prefix="/usr/X11R6"
+exec_prefix="${prefix}"
+
+${exec_prefix}/bin/xsetroot -fg \#6f6f6f -bg \#bfbfbf -bitmap ${prefix}/include/X11/bitmaps/root_weave
+/usr/local/bin/feh --bg-scale /etc/X11/xenodm/pixmaps/setup.png
+OS_NAME=$(uname -n)
+OS_INFO=$(uname -smr)
+xclock -geometry -0+0 -digital -font "-misc-dejavu sans condensed-medium-o-semicondensed--0-0-0-0-p-0-adobe-standard" -strftime "$OS_NAME ($OS_INFO) | %Y-%m-%d %H:%M " &
+#  install package openbsd-backgrounds
+#  then uncomment:
+#
+# if test -x /usr/local/bin/openbsd-wallpaper
+# then
+# 	/usr/local/bin/openbsd-wallpaper
+# fi
+
+# sxpm OpenBSD.xpm &
+{% elif theme == 'gruvbox' %}
+#!/bin/sh
+# $OpenBSD: Xsetup_0.in,v 1.1 2021/08/30 15:38:27 matthieu Exp $
+
+prefix="/usr/X11R6"
+exec_prefix="${prefix}"
+
+${exec_prefix}/bin/xsetroot -fg \#6f6f6f -bg \#bfbfbf -bitmap ${prefix}/include/X11/bitmaps/root_weave
+/usr/local/bin/feh --bg-scale /etc/X11/xenodm/pixmaps/gruvbox.png
+OS_NAME=$(uname -n)
+OS_INFO=$(uname -smr)
+xclock -geometry -0+0 -digital -font "-dec-terminal-bold-r-medium--0-0-75-75-c-0-iso8859-1" -strftime "$OS_NAME ($OS_INFO) | %Y-%m-%d %H:%M " &
+#  install package openbsd-backgrounds
+#  then uncomment:
+#
+# if test -x /usr/local/bin/openbsd-wallpaper
+# then
+#       /usr/local/bin/openbsd-wallpaper
+# fi
+
+# sxpm OpenBSD.xpm &
+{% endif %}

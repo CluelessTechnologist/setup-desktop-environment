@@ -1,0 +1,71 @@
+# Include completions
+#fpath=(~/.config/zsh/completions $fpath)
+autoload -U compinit && compinit -u
+zstyle ':completion:*' menu select
+# Auto complete with case insenstivity
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+zmodload zsh/complist
+compinit
+_comp_options+=(globdots)		# Include hidden files.
+
+# Unlimited or very large history size
+HISTSIZE=1000000         # Number of commands to keep in memory for the current session
+SAVEHIST=1000000         # Number of commands to save to the history file across sessions
+
+# File to store the history
+HISTFILE=~/.zsh_history  # Path to the history file
+
+# Save and load history between sessions
+setopt appendhistory      # Append new history to the history file, don't overwrite
+setopt incappendhistory    # Write to history file incrementally as commands are entered
+setopt sharehistory        # Share history across all running Zsh sessions
+setopt histignoredups      # Ignore duplicate entries
+setopt histignorespace     # Ignore commands that start with a space
+
+# Set up fzf key bindings and fuzzy completion
+# Bind Home and End keys
+bindkey -v 
+bindkey '\e[1~' beginning-of-line
+bindkey '\e[4~' end-of-line
+
+# Custom widget for searching history with ag and fzf
+fzf-history-widget() {
+  local selected
+  setopt localoptions noglobsubst noposixbuiltins pipefail no_aliases 2> /dev/null
+  selected=( $(fc -rl 1 | awk '{ cmd=$0; sub(/^[ \t]*[0-9]+\**[ \t]+/, "", cmd); if (!seen[cmd]++) print $0 }' |
+    FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-20%} $FZF_DEFAULT_OPTS -n2..,.. --tiebreak=index --bind=ctrl-r:toggle-sort $FZF_CTRL_R_OPTS --query=${(qqq)LBUFFER} +m" fzf) )
+  local ret=$?
+  if [ -n "$selected" ]; then
+    num=$selected[1]
+    if [ -n "$num" ]; then
+      zle vi-fetch-history -n $num
+    fi
+  fi
+  zle reset-prompt
+  return $ret
+}
+
+# Create the widget and bind it to Ctrl+R
+zle -N fzf-history-widget
+bindkey '^R' fzf-history-widget
+
+# Set FZF_DEFAULT_COMMAND to use ag
+export FZF_DEFAULT_COMMAND='ag --hidden -g ""'
+
+
+
+autoload -Uz vcs_info
+precmd() { vcs_info }
+
+# Format the vcs_info_msg_0_ variable
+zstyle ':vcs_info:git:*' formats '(%b)'
+
+# Set up the prompt (with git branch name)
+setopt PROMPT_SUBST
+{% if theme == 'win95' %}
+PROMPT='%n@%m:%~%F{cyan}${vcs_info_msg_0_}%F{white}$ '
+{% elif theme == 'gruvbox' %}
+PROMPT='%n@%m:%~%F{yellow}${vcs_info_msg_0_}%F{white}$ '
+{% endif %}
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
