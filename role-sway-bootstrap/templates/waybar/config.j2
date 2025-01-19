@@ -84,7 +84,7 @@
                     "calendar": 1
                      }
     },
-{% elif ansible_distribution == 'Debian' %}
+{% elif ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' %}
     "clock": {
         "interval": 1,
         "format": "{:%Y-%m-%d %H:%M:%S}",

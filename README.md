@@ -15,7 +15,8 @@ For instructions on how to run the playbooks click the links below.
 ## Supported OSes:
 * Debian 12
 * Arch Linux
-* OpenBSD 7.5 (specific role) 
+* OpenBSD 7.5 (specific role)
+* Ubuntu 24.04 (only sway role)
 
 ## Roles:
 * [**role-sway-bootstrap:** Bootstraps a Sway desktop, complete with theme and all necessary components.](role-sway-bootstrap/README.md)

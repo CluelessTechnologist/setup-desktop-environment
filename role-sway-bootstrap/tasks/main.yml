@@ -20,6 +20,11 @@
   tags: distro
 
 - name: Perform actions based on distro
+  ansible.builtin.command: echo "This is Ubuntu-specific action"
+  when: ansible_distribution == 'Ubuntu'
+  tags: distro
+
+- name: Perform actions based on distro
   ansible.builtin.command: echo "This is Arch-specific action"
   when: ansible_distribution == 'Archlinux'
   tags: distro
@@ -35,7 +40,24 @@
     cmd: sh -s -- -y
     stdin: "{{ rustup_installer.content }}"
 
-- name: Debian specific parts
+- name: Clone swhkd repository
+  ansible.builtin.git:
+    repo: https://github.com/waycrate/swhkd
+    dest: /tmp/swhkd
+    force: true
+
+- name: Build swhkd
+  ansible.builtin.shell: . "$HOME/.cargo/env" && make setup && make clean && make
+  args:
+    chdir: /tmp/swhkd
+
+- name: Install swhkd
+  ansible.builtin.shell: make install
+  args:
+    chdir: /tmp/swhkd
+  become: true
+
+- name: Debian/Ubuntu specific parts
   block:
     - name: Install common packages
       become: true
@@ -88,8 +110,22 @@
           - plymouth
           - plymouth-themes
           - libudev-dev
-          - firefox-esr
           - libnotify-dev
+
+
+    - name: Install Debian-specific packages
+      become: true
+      apt:
+        name:
+          - firefox-esr  # Debian-specific package name
+      when: ansible_distribution == 'Debian'
+
+    - name: Install Ubuntu-specific packages
+      become: true
+      apt:
+        name:
+          - firefox  # Ubuntu-specific package name
+      when: ansible_distribution == 'Ubuntu'
 
     - name: Install additional package for virtual machine
       become: true
@@ -107,7 +143,18 @@
           - network-manager-gnome
           - python3-gi
           - gir1.2-nm-1.0
-      when: "system_type == 'laptop'"
+      when: "system_type == 'laptop' and ansible_distribution == 'Debian'" 
+
+    - name: Install additional package for laptop machine
+      become: true
+      apt:
+        state: present
+        name:
+          - brightnessctl
+          - network-manager
+          - python3-gi
+          - gir1.2-nm-1.0
+      when: "system_type == 'laptop' and ansible_distribution == 'Ubuntu'" 
 
     - name: Install kvantummanager
       become: true
@@ -125,18 +172,31 @@
       template:
         src: templates/alacritty/hyper.yaml.j2
         dest: ~/.config/alacritty/themes/hyper.yaml
-      when: "theme == 'win95'"
+      when: "theme == 'win95' and ansible_distribution == 'Debian'"
 
     - name: Copy Alacritty Gruvbox theme template
       template:
         src: templates/alacritty/gruvbox-material-alacritty.yaml.j2
         dest: ~/.config/alacritty/themes/gruvbox-material-alacritty.yaml
-      when: "theme == 'gruvbox'"
+      when: "theme == 'gruvbox' and ansible_distribution == 'Debian'" 
 
     - name: Copy Alacritty configuration template
       template:
         src: templates/alacritty/alacritty.yml.j2
         dest: ~/.config/alacritty/alacritty.yml
+      when: ansible_distribution == 'Debian'
+
+    - name: Clone Alacritty theme repository
+      git:
+        repo: https://github.com/alacritty/alacritty-theme
+        dest: ~/.config/alacritty/themes
+      when: ansible_distribution == 'Ubuntu'
+
+    - name: Copy Alacritty configuration template
+      template:
+        src: templates/alacritty/alacritty.toml.j2
+        dest: ~/.config/alacritty/alacritty.toml
+      when: ansible_distribution == 'Ubuntu'
 
     - name: Check latest emptty release
       ansible.builtin.uri:
@@ -158,22 +218,6 @@
         mode: '0644'
       become: true
 
-    - name: Clone swhkd repository
-      ansible.builtin.git:
-        repo: https://github.com/waycrate/swhkd
-        dest: /tmp/swhkd
-
-    - name: Build swhkd
-      ansible.builtin.shell: . "$HOME/.cargo/env" && make setup && make clean && make
-      args:
-        chdir: /tmp/swhkd
-
-    - name: Install swhkd
-      ansible.builtin.shell: make install
-      args:
-        chdir: /tmp/swhkd
-      become: true
-
     - name: Add lines to /etc/environment
       ansible.builtin.lineinfile:
         path: /etc/environment
@@ -181,7 +225,7 @@
           WLR_NO_HARDWARE_CURSORS=1
       become: true
       when: "system_type == 'virtual_machine'"
-  when: ansible_distribution == 'Debian'
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Arch specific parts
   block:
@@ -284,7 +328,6 @@
     - name: Install package from AUR
       ansible.builtin.command: yay -S --noconfirm {{ item }}
       with_items:
-        - swhkd-git
         - qt5-styleplugins
         - wlogout
         - wdisplays
@@ -315,12 +358,43 @@
         path: ~/.local/share/fonts
         state: directory
 
+    - name: Get size of /home
+      shell: "df --block-size=1m /home --output=avail | tail -1"
+      register: home_df_result
+      changed_when: false
+
+    - name: Set available space in /home
+      set_fact:
+        home_available_mb: "{{ home_df_result.stdout | int }}"
+
     - name: Get nerd fonts from git
       ansible.builtin.git:
         repo: "https://github.com/ryanoasis/nerd-fonts.git"
         dest: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts"
         depth: 1
         force: true
+      when: home_available_mb | int >= 32768
+
+    - name: Create directory for source 
+      file:
+        path: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts" 
+        state: directory
+      when: home_available_mb | int <= 32768
+
+    - name: Download Terminus Nerd Font
+      ansible.builtin.get_url:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Terminus.zip"
+        dest: "/tmp/Terminus.zip"
+      become: false
+      when: home_available_mb | int <= 32768
+
+    - name: Unzip Terminus Nerd Font
+      ansible.builtin.unarchive:
+        src: "/tmp/Terminus.zip"
+        dest: "{{ ansible_env.HOME }}/src/ikon/nerd-fonts/patched-fonts"
+        remote_src: true
+      become: false
+      when: home_available_mb | int <= 32768
 
     - name: Select fonts to install
       ansible.builtin.find:
@@ -340,6 +414,11 @@
     - name: Update font config cache
       ansible.builtin.command:
         cmd: "fc-cache -fv"
+
+    - name: Remove directory src from home dir 
+      file:
+        path: "{{ ansible_env.HOME }}/src"
+        state: absent
 
     - name: Create directory for networkmanager-dmenu config
       file:
@@ -415,6 +494,22 @@
 
   when: system_type == 'laptop'
 
+- name: Copy swhkd configuration template
+  template:
+    src: templates/swhkd/swhkdrc.j2
+    dest: /etc/swhkd/swhkdrc
+  become: true
+
+- name: Create directory for dunst config
+  file:
+    path: ~/.config/dunst
+    state: directory
+
+- name: Copy dunst config template
+  template:
+    src: templates/dunst/dunstrc.j2
+    dest: ~/.config/dunst/dunstrc
+
 - name: Copy emptty config template
   template:
     src: templates/emptty/emptty.j2
@@ -446,22 +541,6 @@
     enabled: true
     state: started
   become: true
-
-- name: Copy swhkd configuration template
-  template:
-    src: templates/swhkd/swhkdrc.j2
-    dest: /etc/swhkd/swhkdrc
-  become: true
-
-- name: Create directory for dunst config
-  file:
-    path: ~/.config/dunst
-    state: directory
-
-- name: Copy dunst config template
-  template:
-    src: templates/dunst/dunstrc.j2
-    dest: ~/.config/dunst/dunstrc
 
 - name: Create directory for waybar config
   file:
@@ -644,7 +723,7 @@
 
 - name: Download Gruvbox themes
   ansible.builtin.shell:
-    cmd: curl -Lfs https://www.pling.com/p/1681313/loadFiles | jq -r '.files | first.version as $v | .[] | select(.version == $v).url' | perl -pe 's/\%(\w\w)/chr hex $1/ge' | xargs wget
+    cmd: curl -Lfs https://www.pling.com/p/1681313/loadFiles | jq -r '.files | first.version as $v | .[] | select(.version == $v).url' | perl -pe 's/\%(\w\w)/chr hex $1/ge' | while read -r url; do wget "$url"; sleep 10; done 
   args:
     chdir: /tmp/gruvbox
   when: "theme == 'gruvbox'"
@@ -729,14 +808,26 @@
   when: "theme == 'gruvbox'"
   tags: plymouth
 
-
 - name: Set Loader as the default Plymouth theme
   ansible.builtin.command:
     cmd: plymouth-set-default-theme -R loader
   become: true
-  when: "theme == 'gruvbox'"
+  when: "theme == 'gruvbox' and ansible_distribution != 'Ubuntu'"
   tags: plymouth
 
+- name: Install Loader as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/loader/loader.plymouth 200 
+  become: true
+  when: "theme == 'gruvbox' and ansible_distribution == 'Ubuntu'"
+  tags: plymouth
+
+- name: Set Loader as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: update-alternatives --set default.plymouth /usr/share/plymouth/themes/loader/loader.plymouth 
+  become: true
+  when: "theme == 'gruvbox' and ansible_distribution == 'Ubuntu'"
+  tags: plymouth
 
 - name: Copy RetroTux theme to Plymouth themes directory
   ansible.builtin.copy:
@@ -747,12 +838,25 @@
   when: "theme == 'win95'"
   tags: plymouth
 
-
 - name: Set RetroTux as the default Plymouth theme
   ansible.builtin.command:
     cmd: plymouth-set-default-theme -R RetroTux
   become: true
-  when: "theme == 'win95'"
+  when: "theme == 'win95' and ansible_distribution != 'Ubuntu'"
+  tags: plymouth
+
+- name: Install RetroTux as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: update-alternatives --install /usr/share/plymouth/themes/default.plymouth default.plymouth /usr/share/plymouth/themes/RetroTux/RetroTux.plymouth 200 
+  become: true
+  when: "theme == 'win95' and ansible_distribution == 'Ubuntu'"
+  tags: plymouth
+
+- name: Set RetroTux as the default Plymouth theme
+  ansible.builtin.command:
+    cmd: update-alternatives --set default.plymouth /usr/share/plymouth/themes/RetroTux/RetroTux.plymouth
+  become: true
+  when: "theme == 'win95' and ansible_distribution == 'Ubuntu'"
   tags: plymouth
 
 - name: Copy grub2-gruvbox theme to grub themes directory
@@ -887,7 +991,7 @@
   ansible.builtin.lineinfile:
     path: /etc/environment
     line: |
-      GTK_THEME="Gruvbox-Dark-BL-LB"
+      GTK_THEME="Gruvbox-Dark"
       QT_QPA_PLATFORM=wayland
       QT_QPA_PLATFORMTHEME=qt5ct
   become: true
