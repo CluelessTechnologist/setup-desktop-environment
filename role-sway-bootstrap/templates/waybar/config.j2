@@ -141,7 +141,7 @@
 
     "custom/btc": {
         "format": " {}",
-        "exec": "curl -s https://api.coindesk.com/v1/bpi/currentprice/USD.json | jq -r \".bpi.USD.rate\" | sed \"s/\\..*//\"",
+        "exec": "curl -s 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd' | jq -r '.bitcoin.usd' | cut -d. -f1 | numfmt --grouping",
         "interval": 150,
 	},
 

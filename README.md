@@ -13,7 +13,7 @@ This repository contains ansible roles to bootstrap complete desktop environment
 For instructions on how to run the playbooks click the links below.
   
 ## Supported OSes:
-* Debian 12
+* Debian 13
 * Arch Linux
 * OpenBSD 7.5 (specific role)
 * Ubuntu 24.04 (only sway role)

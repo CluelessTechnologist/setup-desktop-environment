@@ -29,34 +29,6 @@
   when: ansible_distribution == 'Archlinux'
   tags: distro
 
-- name: Fetch rustup
-  ansible.builtin.uri:
-    url: https://sh.rustup.rs
-    return_content: true
-  register: rustup_installer
-
-- name: Run rustup installer
-  ansible.builtin.shell:
-    cmd: sh -s -- -y
-    stdin: "{{ rustup_installer.content }}"
-
-- name: Clone swhkd repository
-  ansible.builtin.git:
-    repo: https://github.com/waycrate/swhkd
-    dest: /tmp/swhkd
-    force: true
-
-- name: Build swhkd
-  ansible.builtin.shell: . "$HOME/.cargo/env" && make setup && make clean && make
-  args:
-    chdir: /tmp/swhkd
-
-- name: Install swhkd
-  ansible.builtin.shell: make install
-  args:
-    chdir: /tmp/swhkd
-  become: true
-
 - name: Debian/Ubuntu specific parts
   block:
     - name: Install common packages
@@ -75,12 +47,12 @@
           - bemenu
           - j4-dmenu-desktop
           - dunst
+          - emptty
           - unzip
           - calc
           - flatpak
           - git
-          - qt5-style-plugins
-          - qt5ct
+          - qt6ct
           - qtwayland5
           - xwayland
           - grim
@@ -159,7 +131,7 @@
     - name: Install kvantummanager
       become: true
       apt:
-        name: qt5-style-kvantum
+        name: qt-style-kvantum
         state: present
       when: "theme == 'gruvbox'"
 
@@ -168,54 +140,21 @@
         path: ~/.config/alacritty/themes
         state: directory
 
-    - name: Copy Alacritty Win95 theme template
-      template:
-        src: templates/alacritty/hyper.yaml.j2
-        dest: ~/.config/alacritty/themes/hyper.yaml
-      when: "theme == 'win95' and ansible_distribution == 'Debian'"
-
-    - name: Copy Alacritty Gruvbox theme template
-      template:
-        src: templates/alacritty/gruvbox-material-alacritty.yaml.j2
-        dest: ~/.config/alacritty/themes/gruvbox-material-alacritty.yaml
-      when: "theme == 'gruvbox' and ansible_distribution == 'Debian'" 
-
-    - name: Copy Alacritty configuration template
-      template:
-        src: templates/alacritty/alacritty.yml.j2
-        dest: ~/.config/alacritty/alacritty.yml
-      when: ansible_distribution == 'Debian'
-
     - name: Clone Alacritty theme repository
       git:
         repo: https://github.com/alacritty/alacritty-theme
         dest: ~/.config/alacritty/themes
-      when: ansible_distribution == 'Ubuntu'
 
     - name: Copy Alacritty configuration template
       template:
         src: templates/alacritty/alacritty.toml.j2
         dest: ~/.config/alacritty/alacritty.toml
-      when: ansible_distribution == 'Ubuntu'
 
-    - name: Check latest emptty release
-      ansible.builtin.uri:
-        url: https://api.github.com/repos/tvrzna/emptty/releases/latest
-        return_content: true
-      register: emptty_latest
-
-    - name: "Install emptty {{ emptty_latest.json.tag_name }}"
-      ansible.builtin.unarchive:
-        remote_src: true
-        src: "https://github.com/tvrzna/emptty/releases/download/{{ emptty_latest.json.tag_name }}/emptty-bin-x86_64-{{ emptty_latest.json.tag_name | regex_replace('^v', '') }}.tar.gz"
-        dest: /
-      become: true
-
-    - name: Download pam-debian and save it as /etc/pam.d/emptty
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/tvrzna/emptty/master/res/pam-debian
-        dest: /etc/pam.d/emptty
-        mode: '0644'
+    - name: Enable emptty.service
+      ansible.builtin.service:
+        name: emptty@tty1.service
+        enabled: true
+        state: started
       become: true
 
     - name: Add lines to /etc/environment
@@ -348,6 +287,13 @@
       template:
         src: templates/alacritty/alacritty.toml.j2
         dest: ~/.config/alacritty/alacritty.toml
+
+    - name: Enable emptty.service
+      ansible.builtin.service:
+        name: emptty.service
+        enabled: true
+        state: started
+      become: true
 
   when: ansible_distribution == 'Archlinux'
 
@@ -494,6 +440,34 @@
 
   when: system_type == 'laptop'
 
+- name: Fetch rustup
+  ansible.builtin.uri:
+    url: https://sh.rustup.rs
+    return_content: true
+  register: rustup_installer
+
+- name: Run rustup installer
+  ansible.builtin.shell:
+    cmd: sh -s -- -y
+    stdin: "{{ rustup_installer.content }}"
+
+- name: Clone swhkd repository
+  ansible.builtin.git:
+    repo: https://github.com/waycrate/swhkd
+    dest: /tmp/swhkd
+    force: true
+
+- name: Build swhkd
+  ansible.builtin.shell: . "$HOME/.cargo/env" && make setup && make clean && make
+  args:
+    chdir: /tmp/swhkd
+
+- name: Install swhkd
+  ansible.builtin.shell: make install
+  args:
+    chdir: /tmp/swhkd
+  become: true
+
 - name: Copy swhkd configuration template
   template:
     src: templates/swhkd/swhkdrc.j2
@@ -534,13 +508,6 @@
     dest: /etc/emptty/motd-win95
   become: true
   when: "theme == 'win95'"
-
-- name: Enable emptty.service
-  ansible.builtin.service:
-    name: emptty.service
-    enabled: true
-    state: started
-  become: true
 
 - name: Create directory for waybar config
   file:
