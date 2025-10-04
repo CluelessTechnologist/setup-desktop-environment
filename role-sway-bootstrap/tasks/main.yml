@@ -196,8 +196,8 @@
           - calc
           - flatpak
           - git
-          - qt5ct
-          - qt5-wayland
+          - qt6ct
+          - qt6-wayland
           - xorg-server-xwayland
           - grim
           - slurp
@@ -208,6 +208,7 @@
           - ttf-liberation
           - powerline-fonts
           - noto-fonts-emoji
+          - otf-font-awesome
           - jq
           - waybar
           - base-devel
@@ -249,7 +250,7 @@
         state: present
         name:
           - kvantum
-          - kvantum-qt5
+          - kvantum-qt6
       when: "theme == 'gruvbox'"
 
     - name: Clone yay
@@ -267,7 +268,7 @@
     - name: Install package from AUR
       ansible.builtin.command: yay -S --noconfirm {{ item }}
       with_items:
-        - qt5-styleplugins
+        - qt6-styleplugins
         - wlogout
         - wdisplays
         - update-grub
@@ -627,7 +628,7 @@
 - name: Copy dolphin template with adjustment for dark theme.
   template:
     src: templates/dolphin/dolphinrc.j2
-    dest: ~/.config/dolphin/dolphinrc
+    dest: ~/.config/dolphinrc
   when: "theme == 'gruvbox'"
 
 - name: Create ~/.config/Kvantum directory
@@ -935,20 +936,39 @@
   become: true
   when: "theme == 'win95'"
 
-- name: Create ~/.config/qt5ct directory
+- name: Create ~/.config/qt6ct directory
   ansible.builtin.file:
-    path: ~/.config/qt5ct
+    path: ~/.config/qt6ct
     state: directory
 
-- name: Copy qt5ct template
+- name: Copy qt6ct template
   template:
-    src: templates/qt5ct/qt5ct.conf.j2
-    dest: ~/.config/qt5ct/qt5ct.conf
+    src: templates/qt6ct/qt6ct.conf.j2
+    dest: ~/.config/qt6ct/qt6ct.conf
 
 - name: Copy gtkrc-2.0 template
   template:
     src: templates/.gtkrc-2.0.j2
     dest: ~/.gtkrc-2.0
+
+- name: Copy kdeglobals template
+  template:
+    src: templates/kdeglobals.j2
+    dest: ~/.config/kdeglobals
+
+- name: Set GNOME icon theme to Gruvbox-Dark
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/icon-theme"
+    value: "'Gruvbox-Dark'"
+    state: present
+  when: "theme == 'gruvbox'"
+
+- name: Set GNOME icon theme to Chicago95-tux 
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/icon-theme"
+    value: "'Chicago95-tux'"
+    state: present
+  when: "theme == 'win95'"
 
 - name: Add lines to /etc/environment
   ansible.builtin.lineinfile:
@@ -956,7 +976,7 @@
     line: |
       GTK_THEME="Chicago95"
       QT_QPA_PLATFORM=wayland
-      QT_QPA_PLATFORMTHEME=qt5ct
+      QT_QPA_PLATFORMTHEME=qt6ct
   become: true
   when: "theme == 'win95'"
 
@@ -966,7 +986,7 @@
     line: |
       GTK_THEME="Gruvbox-Dark"
       QT_QPA_PLATFORM=wayland
-      QT_QPA_PLATFORMTHEME=qt5ct
+      QT_QPA_PLATFORMTHEME=qt6ct
   become: true
   when: "theme == 'gruvbox'"
 
