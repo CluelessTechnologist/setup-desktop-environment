@@ -624,6 +624,12 @@
     path: ~/.icons
     state: directory
 
+- name: Copy dolphin template with adjustment for dark theme.
+  template:
+    src: templates/dolphin/dolphinrc.j2
+    dest: ~/.config/dolphin/dolphinrc
+  when: "theme == 'gruvbox'"
+
 - name: Create ~/.config/Kvantum directory
   ansible.builtin.file:
     path: ~/.config/Kvantum

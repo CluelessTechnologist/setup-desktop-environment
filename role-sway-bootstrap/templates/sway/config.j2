@@ -38,7 +38,7 @@ exec swayidle -w \
   timeout 300 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && brightnessctl -s && brightnessctl set 5% && notify-send "Dim" "On battery"' \
     resume 'brightnessctl -r' \
   timeout 500 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && swaymsg "output * dpms off"' \
-    resume 'brigtnessctl -r && swaymsg "output * dpms on"' \
+    resume 'brightnessctl -r && swaymsg "output * dpms on"' \
   timeout 600 '[ "$(cat /sys/class/power_supply/AC/online)" = "0" ] && systemctl suspend-then-hibernate' \
   timeout 650 '[ "$(cat /sys/class/power_supply/AC/online)" = "1" ] && brightnessctl -s && brightnessctl set 5% && notify-send "Dim" "On battery"' \
     resume 'brightnessctl -r' \
