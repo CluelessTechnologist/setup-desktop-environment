@@ -90,5 +90,4 @@ After the playbook has finished all you need to do is restart your machine and y
 | Application     | Issue                                                                               | Workaround                                                                 |
 |-----------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
 | yay (arch)      | Cannot run yay without NOPASSWD sudo option                                         | Use NOPASSWD sudo option                                                   |
-| QT6 (arch)      | Some applications use QT6 now so need to add qt6ct for theming those                                         | Install and configure qt6ct yourself                                                   |
 | N/A             | Virtual machine option doesn't install guest tools for other than KVM hypervisor    |                                                                            |

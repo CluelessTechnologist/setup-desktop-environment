@@ -83,7 +83,8 @@
           - plymouth-themes
           - libudev-dev
           - libnotify-dev
-
+          - python3-psutil
+          - dconf-cli
 
     - name: Install Debian-specific packages
       become: true
@@ -225,6 +226,7 @@
           - xdg-desktop-portal-wlr
           - xdg-desktop-portal-gtk
           - xdg-desktop-portal-gnome
+          - python-psutil
 
     - name: Install additional package for virtual machine
       become: true
@@ -250,7 +252,6 @@
         state: present
         name:
           - kvantum
-          - kvantum-qt6
       when: "theme == 'gruvbox'"
 
     - name: Clone yay
