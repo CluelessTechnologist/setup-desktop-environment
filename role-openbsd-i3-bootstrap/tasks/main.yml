@@ -43,7 +43,7 @@
       - jq
       - curl
       - wget
-      - dtpstree 
+      - dtpstree
       - libnotify
       - py3-urwid
       - rofi
@@ -52,7 +52,7 @@
       - zsh-syntax-highlighting
       - the_silver_searcher
 
-- name: Copy battery scripts 
+- name: Copy battery scripts
   ansible.builtin.copy:
     src: "files/scripts/{{ item }}"
     dest: "/usr/local/bin/"
@@ -110,6 +110,8 @@
 - name: Update font config cache
   ansible.builtin.command:
     cmd: "fc-cache -fv"
+  become: ture
+  ignore_errors: ture
   tags: fonts
 
 - name: Delete src directory
@@ -288,7 +290,7 @@
 
 - name: Download Gruvbox themes
   ansible.builtin.shell:
-    cmd: curl -Lfs https://www.pling.com/p/1681313/loadFiles | jq -r '.files | first.version as $v | .[] | select(.version == $v).url' | perl -pe 's/\%(\w\w)/chr hex $1/ge' | xargs wget
+    cmd: curl -Lfs https://www.pling.com/p/1681313/loadFiles | jq -r '.files | first.version as $v | .[] | select(.version == $v).url' | perl -pe 's/\%(\w\w)/chr hex $1/ge' | while read -r url; do wget "$url"; sleep 10; done
   args:
     chdir: /tmp/gruvbox
   when: "theme == 'gruvbox'"
